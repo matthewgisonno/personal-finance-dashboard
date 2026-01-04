@@ -1,3 +1,5 @@
+import { SpeedInsights } from '@vercel/speed-insights/next';
+
 import { CategorizationTray } from '@/components/dashboard';
 import { DashboardLayout } from '@/components/layout';
 import { TransactionProcessingProvider } from '@/context/TransactionProcessingContext';
@@ -11,6 +13,7 @@ export default async function DashboardLayoutWrapper({ children }: { children: R
       <DashboardLayout user={user}>
         <div className="space-y-6">{children}</div>
         <CategorizationTray />
+        <SpeedInsights />
       </DashboardLayout>
     </TransactionProcessingProvider>
   );
