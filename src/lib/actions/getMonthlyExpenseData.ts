@@ -14,8 +14,11 @@ export type MonthlyExpenseData = {
 };
 
 export async function getMonthlyExpenseData(filters: ReportFilters = {}): Promise<MonthlyExpenseData[]> {
+  // MOCK: Get the user
   const user = await db.query.users.findFirst();
-  if (!user) return [];
+  if (!user) {
+    return [];
+  }
 
   const endDate = filters.endDate || new Date();
   const startDate = filters.startDate || subMonths(startOfMonth(endDate), 11); // Last 12 months including current

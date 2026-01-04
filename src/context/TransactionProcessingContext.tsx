@@ -7,8 +7,8 @@ import type { CategorizedTransaction } from '@/lib/services/types';
 interface TransactionProcessingContextType {
   transactions: CategorizedTransaction[];
   isProcessing: boolean;
-  progress: string; // Text description
-  progressValue: number; // 0-100
+  progress: string;
+  progressValue: number;
   pendingCount: number;
   completedCount: number;
   totalCount: number;
@@ -138,35 +138,20 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
       const typedData = data as CategorizedTransaction[];
 
       setTransactions(typedData);
-
-      // Trigger processing logic - it handles its own locking
-      // We call it here so if we just loaded pending items, we start.
-      // If we are already running, the loop inside processBackgroundBatches will pick up the new items (via ref).
-      // However, we need to make sure we invoke it if it wasn't running.
-      // Since processBackgroundBatches is not in the dependency array (to avoid cycle), we need a way to call it.
-      // We can define it inside the component scope (which it is) and call it.
-      // But we can't call it easily from useCallback if it's not memoized or stable.
-      // Actually, checkPending is useCallback... processBackgroundBatches uses refs so it's stable-ish but not wrapped.
-      // Let's make processBackgroundBatches a ref or useCallback?
-      // Or just not wrap checkPending in useCallback? It's used in useEffect.
     } catch (err) {
       console.error('Failed to check pending transactions', err);
     }
   }, []);
 
-  // We need to call processBackgroundBatches when transactions update?
-  // No, checking every update is too much.
-  // We want to call it explicitly after checkPending updates state.
-  // So let's move processBackgroundBatches definition inside checkPending? No.
-
-  // Let's use a trigger effect.
+  // Trigger effect to start processing when transactions change
+  // When transactions change, if we have pending and not running, start.
   useEffect(() => {
     const pending = transactions.filter(t => t.categoryStatus === 'pending');
     if (pending.length > 0 && !processingRef.current) {
       processBackgroundBatches();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions]); // When transactions change, if we have pending and not running, start.
+  }, [transactions]);
 
   // Initial check
   useEffect(() => {

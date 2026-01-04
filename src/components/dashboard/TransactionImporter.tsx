@@ -27,7 +27,6 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadStatus, setUploadStatus] = useState<string>('');
 
-  // Event handler used to upload and handle the CSV file parsing
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) {
@@ -115,6 +114,7 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
         {/* ACCOUNT SELECTOR */}
         <div className="mb-4 text-left max-w-md mx-auto">
           <label className="block text-sm font-medium text-gray-700 mb-1">Select Account</label>
+
           <select
             value={selectedAccountId}
             onChange={e => setSelectedAccountId(e.target.value)}
@@ -132,6 +132,7 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
         {/* INPUT STATE */}
         <div className="space-y-4">
           <p className="text-sm text-gray-500">Upload a CSV with columns: Date, Description, Amount</p>
+
           <input
             type="file"
             accept=".csv"
@@ -152,6 +153,7 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
             <Table>
               <Fragment key="table">
                 <TableHeaders headers={['Date', 'Description', 'Category', 'Source', 'Amount']} />
+
                 <TableRows rows={pendingTransactions} />
               </Fragment>
             </Table>
@@ -166,8 +168,10 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
             <div className="rounded-full bg-green-100 p-3">
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
+
             <div className="space-y-1">
               <h3 className="text-lg font-medium text-gray-900">All transactions categorized</h3>
+
               <p className="text-gray-500">
                 All transactions have been categorized. Upload more transactions to proceed.
               </p>

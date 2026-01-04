@@ -1,6 +1,7 @@
 import { LayoutDashboard } from 'lucide-react';
+import { Suspense } from 'react';
 
-import { AIInsights } from '@/components/dashboard';
+import { AIInsightsWrapper, AIInsightsSkeleton } from '@/components/dashboard';
 import { Header } from '@/components/layout';
 
 export default function DashboardPage() {
@@ -12,7 +13,9 @@ export default function DashboardPage() {
         description="View your financial insights"
       />
 
-      <AIInsights />
+      <Suspense fallback={<AIInsightsSkeleton />}>
+        <AIInsightsWrapper />
+      </Suspense>
     </>
   );
 }

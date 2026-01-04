@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Account ID is required' }, { status: 400 });
     }
 
-    // MOCK: Get the first user
+    // MOCK: Get the user
     const user = await db.query.users.findFirst();
     if (!user) {
       return NextResponse.json({ error: 'No user found for mock' }, { status: 400 });

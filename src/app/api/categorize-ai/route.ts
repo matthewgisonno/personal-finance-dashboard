@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   let rawTransactions: TransactionInput[] = [];
 
   try {
-    // MOCK: Get user
+    // MOCK: Get the user
     const user = await db.query.users.findFirst();
     if (!user) {
       return NextResponse.json({ error: 'No user found' }, { status: 401 });
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     rawTransactions = body.transactions || [];
 
-    // Minimized payload for the AI
+    // Minimized payload for the LLM
     const minimized = rawTransactions.map((t: TransactionInput) => ({ id: t.id, desc: t.description }));
     const validCategories = DEFAULT_CATEGORIES.map(c => c.name).join(', ');
 
@@ -71,7 +71,7 @@ ${JSON.stringify(minimized)}`
     });
 
     // DB UPDATE LOOP
-    // We update the rows in Neon with the new AI results
+    // Update the rows in Neon with the new AI results
     const updates = object.categorizations.map(async (cat: { id: string; category: string; confidence: number }) => {
       const catId = await getCategoryId(cat.category);
 

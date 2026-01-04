@@ -22,7 +22,7 @@ export function CategorizationTray() {
     const currentlyProcessing = isProcessing || pendingCount > 0;
 
     if (currentlyProcessing && !prevProcessingState.current) {
-      // Use timeout to avoid "setState in effect" warning and ensure clean render cycle
+      // Use timeout to push the state update to the next tick
       setTimeout(() => {
         setIsVisible(true);
         setIsExpanded(true);
@@ -56,16 +56,20 @@ export function CategorizationTray() {
               ) : (
                 <CheckCircle className="h-4 w-4 text-green-500" />
               )}
+
               <h3 className="font-medium text-sm text-gray-900">
                 {isProcessing ? 'Categorizing Transactions' : 'Categorization Complete'}
               </h3>
             </div>
+
             <div className="flex items-center gap-1">
               <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsExpanded(!isExpanded)}>
                 {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
               </Button>
+
               <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsVisible(false)}>
                 <span className="sr-only">Close</span>
+
                 <span className="text-xs">✕</span>
               </Button>
             </div>
@@ -75,6 +79,7 @@ export function CategorizationTray() {
             <div className="space-y-3">
               <div className="flex justify-between text-xs text-gray-500">
                 <span>{progress}</span>
+
                 <span>
                   {completedCount.toLocaleString()} / {totalCount.toLocaleString()}
                 </span>

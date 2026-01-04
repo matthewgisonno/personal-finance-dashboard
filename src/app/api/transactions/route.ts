@@ -5,7 +5,7 @@ import { db, transactions, categories, accounts } from '@/lib/db';
 
 export async function GET() {
   try {
-    // MOCK: Get current user
+    // MOCK: Get the user
     const user = await db.query.users.findFirst();
     if (!user) {
       return NextResponse.json({ error: 'No user found' }, { status: 401 });

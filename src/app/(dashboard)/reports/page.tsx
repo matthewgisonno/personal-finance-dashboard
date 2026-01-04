@@ -31,7 +31,7 @@ export default async function ReportsPage(props: { searchParams: SearchParams })
 
       {expenseData.length === 0 && monthlyData.length === 0 && <EmptyState />}
 
-      {expenseData.length > 0 || (monthlyData.length > 0 && <ReportFilters accounts={accounts} />)}
+      {expenseData.length > 0 && monthlyData.length > 0 && <ReportFilters accounts={accounts} />}
 
       {expenseData.length > 0 && (
         <ExpensesByCategoryChart data={expenseData} dateRange={{ from: startDate, to: endDate }} />

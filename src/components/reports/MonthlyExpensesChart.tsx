@@ -36,12 +36,9 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
     return Array.from(cats);
   }, [data]);
 
-  // Process data for chart
+  // Process data for the chart
   const chartData = useMemo(() => {
     const monthMap = new Map<string, Record<string, string | number>>();
-
-    // Initialize with all months in the range? Or just rely on data existence.
-    // Ideally we fill gaps, but for now let's use what we have.
 
     data.forEach(item => {
       const monthKey = item.month;
@@ -85,9 +82,11 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <CardTitle>Monthly Expenses</CardTitle>
+
             <div className="text-sm text-muted-foreground mt-1">
               {format(dateRange.from, 'MMM d, yyyy')} - {format(dateRange.to, 'MMM d, yyyy')}
             </div>
+
             <CardDescription className="mt-1">
               {selectedCategory === 'all'
                 ? 'Spending breakdown by category over time'
@@ -98,8 +97,10 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
+
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
+
               {categories.map(cat => {
                 const IconComponent = cat.icon ? categoryIconMap[cat.icon] : null;
                 return (
@@ -122,6 +123,7 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
           </Select>
         </div>
       </CardHeader>
+
       <CardContent>
         <div className="h-[300px] sm:h-[400px] w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -135,8 +137,11 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
               }}
             >
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
+
               <XAxis dataKey="label" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
+
               <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={value => `$${value}`} />
+
               <Tooltip
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
@@ -191,6 +196,7 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
                   return null;
                 }}
               />
+
               <Legend
                 wrapperStyle={{ paddingTop: '20px' }}
                 content={({ payload }) => {

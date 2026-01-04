@@ -45,9 +45,11 @@ export function ExpensesByCategoryChart({ data, dateRange }: ExpensesByCategoryC
     <Card>
       <CardHeader>
         <CardTitle>Expenses by Category</CardTitle>
+
         <div className="text-sm text-muted-foreground">
           {format(dateRange.from, 'MMM d, yyyy')} - {format(dateRange.to, 'MMM d, yyyy')}
         </div>
+
         <CardDescription>
           Total expenses: ${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </CardDescription>
@@ -72,6 +74,7 @@ export function ExpensesByCategoryChart({ data, dateRange }: ExpensesByCategoryC
                 <Cell key={`cell-${index}`} fill={entry.fill} />
               ))}
             </Pie>
+
             <ChartTooltip
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
@@ -98,6 +101,7 @@ export function ExpensesByCategoryChart({ data, dateRange }: ExpensesByCategoryC
                 return null;
               }}
             />
+
             <Legend
               verticalAlign="bottom"
               content={({ payload }) => {

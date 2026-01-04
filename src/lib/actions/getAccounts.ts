@@ -7,9 +7,11 @@ import { db, accounts } from '@/lib/db';
 import type { AccountOption } from './types';
 
 export async function getAccounts(): Promise<AccountOption[]> {
-  // MOCK: Filter by user
+  // MOCK: Get the user
   const user = await db.query.users.findFirst();
-  if (!user) return [];
+  if (!user) {
+    return [];
+  }
 
   const result = await db
     .select({

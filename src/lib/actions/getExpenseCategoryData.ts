@@ -8,8 +8,11 @@ import type { ReportFilters } from './types';
 import type { ExpensesByCategoryChartData } from '@/components/reports/types';
 
 export async function getExpenseCategoryData(filters: ReportFilters = {}): Promise<ExpensesByCategoryChartData[]> {
+  // MOCK: Get the user
   const user = await db.query.users.findFirst();
-  if (!user) return [];
+  if (!user) {
+    return [];
+  }
 
   const conditions = [eq(categories.type, 'expense'), eq(transactions.userId, user.id)];
 

@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 
 import { Label } from '@/components/ui/Label';
 import { Separator } from '@/components/ui/Separator';
-import { cn } from '@/lib/utils/classNames';
+import { cn } from '@/lib/utils';
 
 function FieldSet({ className, ...props }: React.ComponentProps<'fieldset'>) {
   return (

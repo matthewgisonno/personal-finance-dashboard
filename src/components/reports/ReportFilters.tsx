@@ -1,7 +1,7 @@
 'use client';
 
 import { format, subYears } from 'date-fns';
-import { Plus, Minus, CalendarIcon } from 'lucide-react';
+import { Plus, Minus, CalendarIcon, ChevronDown } from 'lucide-react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { DateRange } from 'react-day-picker';
@@ -93,9 +93,12 @@ export function ReportFilters({ accounts }: ReportFiltersProps) {
           <CardHeader className="w-full">
             <CardTitle className="w-full text-left">Filter Reports</CardTitle>
           </CardHeader>
+
           <Plus className="h-4 w-4 mr-4 hidden group-data-[state=closed]:block md:group-data-[state=open]:hidden" />
+
           <Minus className="h-4 w-4 mr-4 hidden group-data-[state=open]:block md:group-data-[state=open]:hidden" />
         </CollapsibleTrigger>
+
         <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
           <CardContent>
             <div className="flex items-center py-4 gap-4 flex-wrap md:flex-nowrap">
@@ -104,10 +107,12 @@ export function ReportFilters({ accounts }: ReportFiltersProps) {
                   <FieldGroup>
                     <Field>
                       <FieldLabel htmlFor="account-filter">By Account:</FieldLabel>
+
                       <Select value={currentAccount} onValueChange={handleAccountChange}>
                         <SelectTrigger className="h-8 w-50">
                           <SelectValue placeholder="Select account" />
                         </SelectTrigger>
+
                         <SelectContent>
                           <SelectItem value="all">All Accounts</SelectItem>
                           {accounts.map(account => (
@@ -121,11 +126,13 @@ export function ReportFilters({ accounts }: ReportFiltersProps) {
                   </FieldGroup>
                 </FieldSet>
               </div>
+
               <div className="w-full md:max-w-md">
                 <FieldSet>
                   <FieldGroup>
                     <Field>
                       <FieldLabel>Date Range:</FieldLabel>
+
                       <Popover onOpenChange={handleDateClose}>
                         <PopoverTrigger asChild>
                           <Button
@@ -148,8 +155,10 @@ export function ReportFilters({ accounts }: ReportFiltersProps) {
                             ) : (
                               <span>Pick a date</span>
                             )}
+                            <ChevronDown className="ml-auto size-4 opacity-50" />
                           </Button>
                         </PopoverTrigger>
+
                         <PopoverContent className="w-auto p-0" align="start">
                           <Calendar
                             initialFocus

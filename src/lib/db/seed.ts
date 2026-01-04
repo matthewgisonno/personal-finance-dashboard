@@ -13,13 +13,12 @@ const MOCK_USER = {
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // 0. Clean up existing data (optional but good for development)
-  // Note: Order matters due to foreign keys
+  // 0. Clean up existing data
   await db.delete(transactions);
   await db.delete(aiInsights);
   await db.delete(accounts);
   await db.delete(users);
-  // We can keep categories as they are global/shared or we can upsert them
+  // Keep categories as they are global/shared
 
   // 1. Create a mock user
   const [user] = await db.insert(users).values(MOCK_USER).returning();
@@ -48,7 +47,7 @@ async function main() {
 
   // 3. Upsert Categories
   for (const cat of DEFAULT_CATEGORIES) {
-    await db.insert(categories).values(cat).onConflictDoNothing(); // relies on 'name' being unique
+    await db.insert(categories).values(cat).onConflictDoNothing();
   }
 
   console.log('✅ Seeding complete.');

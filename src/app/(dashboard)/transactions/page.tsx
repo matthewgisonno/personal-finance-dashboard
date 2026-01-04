@@ -1,25 +1,12 @@
 import { Receipt } from 'lucide-react';
+import { Suspense } from 'react';
 
 import { Header } from '@/components/layout';
-import { TransactionDisplay } from '@/components/transactions';
-import { getCategories, getAccounts, CategoryType } from '@/lib/actions';
-
-import type { CategorizedTransaction } from '@/lib/services/types';
+import { TransactionListWrapper, TransactionTableSkeleton } from '@/components/transactions';
 
 export const dynamic = 'force-dynamic';
 
-async function getTransactionsData(): Promise<CategorizedTransaction[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/transactions`);
-
-  const { data } = await res.json();
-  return data as CategorizedTransaction[];
-}
-
-export default async function TransactionsPage() {
-  const data = await getTransactionsData();
-  const categories = await getCategories(CategoryType.All);
-  const accounts = await getAccounts();
-
+export default function TransactionsPage() {
   return (
     <>
       <Header
@@ -28,7 +15,9 @@ export default async function TransactionsPage() {
         description="Manage your financial transactions"
       />
 
-      <TransactionDisplay inputData={data} categories={categories} accounts={accounts} />
+      <Suspense fallback={<TransactionTableSkeleton />}>
+        <TransactionListWrapper />
+      </Suspense>
     </>
   );
 }

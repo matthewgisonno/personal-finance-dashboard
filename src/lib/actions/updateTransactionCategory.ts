@@ -7,7 +7,7 @@ import { db, transactions } from '@/lib/db';
 
 export async function updateTransactionCategory(transactionId: string, categoryId: string) {
   try {
-    // MOCK: Ensure user exists (in a real app, we'd check session here too)
+    // MOCK: Get the user
     const user = await db.query.users.findFirst();
     if (!user) {
       throw new Error('User not found');

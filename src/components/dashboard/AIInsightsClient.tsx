@@ -2,82 +2,56 @@
 
 import { format } from 'date-fns';
 import { Sparkles, TrendingDown, AlertTriangle, Lightbulb, Loader2, History } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
+import { generateInsightsAction, InsightData, getInsightHistory } from '@/lib/actions/getInsights';
 
 import { EmptyState } from '../common/EmptyState';
 
-type InsightData = {
-  id: string;
-  generatedAt: string;
-  summary: string;
-  recommendations: Array<{
-    category: string;
-    tip: string;
-    potentialSavings: number;
-  }>;
-  budgetAlerts: string[];
-};
+interface AIInsightsClientProps {
+  initialInsight: InsightData | null;
+  initialHistory: InsightData[];
+}
 
-export function AIInsights() {
-  const [insights, setInsights] = useState<InsightData | null>(null);
-  const [history, setHistory] = useState<InsightData[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [hasLoaded, setHasLoaded] = useState(false);
-  const [noData, setNoData] = useState(false);
+export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsClientProps) {
+  const [insights, setInsights] = useState<InsightData | null>(initialInsight);
+  const [history, setHistory] = useState<InsightData[]>(initialHistory);
+  const [isPending, startTransition] = useTransition();
 
-  const fetchHistory = useCallback(async () => {
-    try {
-      const res = await fetch('/api/insights', { method: 'GET' });
-      if (res.ok) {
-        const data = await res.json();
-        setHistory(data);
-      }
-    } catch (e) {
-      console.error('Failed to fetch history:', e);
-    }
-  }, []);
-
-  const generateInsights = useCallback(
-    async (force: boolean = false) => {
-      setLoading(true);
-      setNoData(false);
+  const handleGenerateInsights = (force: boolean) => {
+    startTransition(async () => {
       try {
-        const res = await fetch('/api/insights', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ force })
-        });
-
-        if (res.status === 404) {
-          setNoData(true);
-          setInsights(null);
-          setHasLoaded(true);
-          return;
+        const newInsight = await generateInsightsAction(force);
+        if (newInsight) {
+          setInsights(newInsight);
+          // Update history
+          const updatedHistory = await getInsightHistory();
+          setHistory(updatedHistory);
         }
-
-        const data = await res.json();
-        setInsights(data);
-        setHasLoaded(true);
-        // Refresh history to include the potentially new insight
-        fetchHistory();
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
+      } catch (error) {
+        console.error('Failed to generate insights:', error);
       }
-    },
-    [fetchHistory]
-  );
+    });
+  };
 
   useEffect(() => {
-    // Load insights on mount
-    generateInsights(false);
-    fetchHistory();
-  }, [generateInsights, fetchHistory]);
+    const shouldRefresh = () => {
+      if (!initialInsight) return true;
+      const generatedAt = new Date(initialInsight.generatedAt);
+      const now = new Date();
+      const msSinceGeneration = now.getTime() - generatedAt.getTime();
+      const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+      return msSinceGeneration >= sevenDaysInMs;
+    };
+
+    if (shouldRefresh()) {
+      handleGenerateInsights(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleHistorySelect = (insightId: string) => {
     const selected = history.find(h => h.id === insightId);
@@ -94,6 +68,7 @@ export function AIInsights() {
             <Sparkles className="h-6 w-6 text-purple-500" />
             AI Financial Insights
           </h2>
+
           <p className="text-muted-foreground">
             Get personalized, privacy-safe recommendations based on your spending patterns.
           </p>
@@ -104,6 +79,7 @@ export function AIInsights() {
             <Select onValueChange={handleHistorySelect} value={insights?.id}>
               <SelectTrigger className="w-[200px]">
                 <History className="mr-2 h-4 w-4" />
+
                 <SelectValue placeholder="History" />
               </SelectTrigger>
               <SelectContent>
@@ -116,8 +92,12 @@ export function AIInsights() {
             </Select>
           )}
 
-          <Button onClick={() => generateInsights(true)} disabled={loading} variant={hasLoaded ? 'outline' : 'default'}>
-            {loading ? (
+          <Button
+            onClick={() => handleGenerateInsights(true)}
+            disabled={isPending}
+            variant={insights ? 'outline' : 'default'}
+          >
+            {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Analyzing...
@@ -129,7 +109,8 @@ export function AIInsights() {
         </div>
       </div>
 
-      {noData && !insights && <EmptyState />}
+      {/* Empty State */}
+      {!insights && <EmptyState />}
 
       {insights && (
         <div className="space-y-4">
