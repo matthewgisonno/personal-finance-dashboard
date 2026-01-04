@@ -7,6 +7,7 @@ import { z } from 'zod';
 
 import { getExpenseCategoryData } from '@/lib/actions/getExpenseCategoryData';
 import { db, aiInsights } from '@/lib/db';
+import { formatCurrency } from '@/lib/utils';
 
 // Schema for the AI's response
 const insightSchema = z.object({
@@ -136,7 +137,7 @@ export async function generateInsightsAction(force: boolean = false): Promise<In
         Analyze this monthly spending distribution using the CLEAR framework:
 
         **Context**:
-        - Total Spending (Last 30 Days): $${totalMonthlySpending.toFixed(2)}
+        - Total Spending (Last 30 Days): ${formatCurrency(totalMonthlySpending)}
         - Category Breakdown: ${JSON.stringify(contextPayload)}
 
         **Limitations**:

@@ -1,6 +1,5 @@
 'use client';
 
-import { format } from 'date-fns';
 import { Sparkles, TrendingDown, AlertTriangle, Lightbulb, Loader2, History } from 'lucide-react';
 import { useState, useTransition, useEffect } from 'react';
 
@@ -8,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { generateInsightsAction, InsightData, getInsightHistory } from '@/lib/actions/getInsights';
+import { formatDateTime, formatFullDateTime } from '@/lib/utils';
 
 import { EmptyState } from '../common/EmptyState';
 
@@ -77,7 +77,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
         <div className="flex items-center gap-2">
           {history.length > 0 && (
             <Select onValueChange={handleHistorySelect} value={insights?.id}>
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-57">
                 <History className="mr-2 h-4 w-4" />
 
                 <SelectValue placeholder="History" />
@@ -85,7 +85,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
               <SelectContent>
                 {history.map(item => (
                   <SelectItem key={item.id} value={item.id}>
-                    {format(new Date(item.generatedAt), 'MMM d, yyyy h:mm a')}
+                    {formatDateTime(item.generatedAt)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -115,7 +115,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
       {insights && (
         <div className="space-y-4">
           <div className="flex items-center justify-end text-sm text-muted-foreground">
-            Generated on {format(new Date(insights.generatedAt), 'MMMM d, yyyy at h:mm a')}
+            Generated on {formatFullDateTime(insights.generatedAt)}
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">

@@ -1,12 +1,11 @@
 'use client';
 
-import { format } from 'date-fns';
 import { Pie, PieChart, Cell, Legend } from 'recharts';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { ChartContainer, ChartTooltip } from '@/components/ui/Chart';
 import { useMobile } from '@/lib/hooks/useMobile';
-import { categoryIconMap } from '@/lib/utils';
+import { categoryIconMap, formatCurrency, formatLongDate, formatPercentage } from '@/lib/utils';
 
 import type { ExpensesByCategoryChartData } from './types';
 
@@ -47,12 +46,10 @@ export function ExpensesByCategoryChart({ data, dateRange }: ExpensesByCategoryC
         <CardTitle>Expenses by Category</CardTitle>
 
         <div className="text-sm text-muted-foreground">
-          {format(dateRange.from, 'MMM d, yyyy')} - {format(dateRange.to, 'MMM d, yyyy')}
+          {formatLongDate(dateRange.from)} - {formatLongDate(dateRange.to)}
         </div>
 
-        <CardDescription>
-          Total expenses: ${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-        </CardDescription>
+        <CardDescription>Total expenses: {formatCurrency(total)}</CardDescription>
       </CardHeader>
       <CardContent className="flex justify-center items-center">
         <ChartContainer
@@ -68,7 +65,7 @@ export function ExpensesByCategoryChart({ data, dateRange }: ExpensesByCategoryC
               cy="50%"
               outerRadius={isMobile ? 50 : '60%'}
               innerRadius={isMobile ? 20 : 30}
-              label={({ category, percent }) => `${category} ${(percent * 100).toFixed(1)}%`}
+              label={({ category, percent }) => `${category} ${formatPercentage(percent)}`}
             >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -86,13 +83,7 @@ export function ExpensesByCategoryChart({ data, dateRange }: ExpensesByCategoryC
                         </div>
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-sm text-muted-foreground">Amount:</span>
-                          <span className="text-sm font-bold">
-                            $
-                            {payload[0].value?.toLocaleString('en-US', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2
-                            })}
-                          </span>
+                          <span className="text-sm font-bold">{formatCurrency(payload[0].value as number)}</span>
                         </div>
                       </div>
                     </div>

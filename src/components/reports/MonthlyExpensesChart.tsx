@@ -1,14 +1,14 @@
 'use client';
 
-import { format, parseISO } from 'date-fns';
 import { useMemo, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { MonthlyExpenseData } from '@/lib/actions/getMonthlyExpenseData';
-import { CategoryOption } from '@/lib/actions/types';
-import { categoryIconMap } from '@/lib/utils';
+import { categoryIconMap, formatCurrency, formatLongDate, formatMonthYear } from '@/lib/utils';
+
+import type { CategoryOption } from '@/lib/actions/types';
 
 interface MonthlyExpensesChartProps {
   data: MonthlyExpenseData[];
@@ -43,9 +43,10 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
     data.forEach(item => {
       const monthKey = item.month;
       if (!monthMap.has(monthKey)) {
+        const [year, month] = monthKey.split('-').map(Number);
         monthMap.set(monthKey, {
           month: monthKey,
-          label: format(parseISO(monthKey + '-01'), 'MMM yy')
+          label: formatMonthYear(new Date(year, month - 1))
         });
       }
       const entry = monthMap.get(monthKey);
@@ -84,7 +85,7 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
             <CardTitle>Monthly Expenses</CardTitle>
 
             <div className="text-sm text-muted-foreground mt-1">
-              {format(dateRange.from, 'MMM d, yyyy')} - {format(dateRange.to, 'MMM d, yyyy')}
+              {formatLongDate(dateRange.from)} - {formatLongDate(dateRange.to)}
             </div>
 
             <CardDescription className="mt-1">
@@ -140,7 +141,12 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
 
               <XAxis dataKey="label" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
 
-              <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={value => `$${value}`} />
+              <YAxis
+                tick={{ fontSize: 12 }}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={value => formatCurrency(value)}
+              />
 
               <Tooltip
                 content={({ active, payload, label }) => {
@@ -169,26 +175,14 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
                                   <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
                                 )}
                                 <span className="text-muted-foreground">{catName}:</span>
-                                <span className="font-medium ml-auto">
-                                  $
-                                  {value.toLocaleString('en-US', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                  })}
-                                </span>
+                                <span className="font-medium ml-auto">{formatCurrency(value)}</span>
                               </div>
                             );
                           })}
                         </div>
                         <div className="mt-2 border-t pt-1 flex items-center justify-between font-bold text-sm">
                           <span>Total</span>
-                          <span>
-                            $
-                            {total.toLocaleString('en-US', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2
-                            })}
-                          </span>
+                          <span>{formatCurrency(total)}</span>
                         </div>
                       </div>
                     );

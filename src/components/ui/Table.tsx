@@ -1,3 +1,5 @@
+import { formatCurrency, formatDate } from '@/lib/utils';
+
 export function Table({ children }: { children: React.ReactNode }) {
   return <table className="min-w-full divide-y divide-gray-200">{children}</table>;
 }
@@ -38,7 +40,7 @@ export function TableRows({ rows }: { rows: TableRow[] }) {
       {rows.map((row: TableRow) => (
         <tr key={row.id} className="hover:bg-gray-50 transition-colors">
           <td className="px-6 py-4 whitespace-nowrap text-sm">
-            <span className="text-gray-500">{new Date(row.date).toLocaleDateString()}</span>
+            <span className="text-gray-500">{formatDate(row.date)}</span>
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-sm">
             <span className="font-medium text-gray-900">{row.description}</span>
@@ -62,7 +64,7 @@ export function TableRows({ rows }: { rows: TableRow[] }) {
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-sm">
             <span className="text-gray-900 text-right font-mono">
-              ${typeof row.amount === 'string' ? parseFloat(row.amount).toFixed(2) : (row.amount as number)?.toFixed(2)}
+              {formatCurrency(typeof row.amount === 'string' ? parseFloat(row.amount) : (row.amount as number))}
             </span>
           </td>
         </tr>

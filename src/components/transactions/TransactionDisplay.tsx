@@ -21,7 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { bulkUpdateTransactionCategory } from '@/lib/actions/bulkUpdateTransactionCategory';
 import { updateTransactionCategory } from '@/lib/actions/updateTransactionCategory';
 import { useMobile } from '@/lib/hooks';
-import { cn, categoryIconMap } from '@/lib/utils';
+import { cn, categoryIconMap, formatCurrency, formatDate, formatNumber } from '@/lib/utils';
 
 import { EmptyState } from '../common/EmptyState';
 import { Badge } from '../ui/Badge';
@@ -108,7 +108,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
         cell: info => {
           const val = info.getValue<string | Date>();
           const date = val instanceof Date ? val : new Date(val);
-          return <div className="flex items-center w-full">{date.toLocaleDateString()}</div>;
+          return <div className="flex items-center w-full">{formatDate(date)}</div>;
         }
       },
       {
@@ -237,7 +237,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
         cell: info => {
           const val = info.getValue<number | string>();
           const num = typeof val === 'string' ? parseFloat(val) : val;
-          const formatted = !isNaN(num) ? num.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : val;
+          const formatted = !isNaN(num) ? formatCurrency(num) : val;
           return <div className="flex items-center">{formatted}</div>;
         },
         size: 100,
@@ -462,7 +462,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
           <CardHeader className="">
             <CardTitle className="text-sm font-medium flex items-center justify-between">
               <span>
-                {`${Object.keys(rowSelection).length} Transaction${Object.keys(rowSelection).length === 1 ? '' : 's'} Selected`}
+                {`${formatNumber(Object.keys(rowSelection).length)} Transaction${Object.keys(rowSelection).length === 1 ? '' : 's'} Selected`}
               </span>
 
               <Button
@@ -522,8 +522,8 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
       )}
 
       <div className="mb-4 text-sm text-gray-500">
-        Showing <strong>{table.getFilteredRowModel().rows.length.toLocaleString()}</strong> of{' '}
-        <strong>{data.length.toLocaleString()}</strong> transactions
+        Showing <strong>{formatNumber(table.getFilteredRowModel().rows.length)}</strong> of{' '}
+        <strong>{formatNumber(data.length)}</strong> transactions
       </div>
 
       <div className="h-150 overflow-auto relative rounded-md border" ref={tableContainerRef}>

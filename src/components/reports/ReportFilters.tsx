@@ -1,6 +1,6 @@
 'use client';
 
-import { format, subYears } from 'date-fns';
+import { subYears } from 'date-fns';
 import { Plus, Minus, CalendarIcon, ChevronDown } from 'lucide-react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -14,7 +14,7 @@ import { Field, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/Field';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/Popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { useMobile } from '@/lib/hooks';
-import { cn } from '@/lib/utils';
+import { cn, formatLongDate } from '@/lib/utils';
 
 import type { AccountOption } from '@/lib/actions/types';
 
@@ -147,10 +147,10 @@ export function ReportFilters({ accounts }: ReportFiltersProps) {
                             {date?.from ? (
                               date.to ? (
                                 <>
-                                  {format(date.from, 'LLL dd, y')} - {format(date.to, 'LLL dd, y')}
+                                  {formatLongDate(date.from)} - {formatLongDate(date.to)}
                                 </>
                               ) : (
-                                format(date.from, 'LLL dd, y')
+                                formatLongDate(date.from)
                               )
                             ) : (
                               <span>Pick a date</span>

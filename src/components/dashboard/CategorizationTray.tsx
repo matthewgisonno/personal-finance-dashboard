@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Progress } from '@/components/ui/Progress';
 import { useTransactionProcessing } from '@/context/TransactionProcessingContext';
+import { formatNumber } from '@/lib/utils';
 
 export function CategorizationTray() {
   const { isProcessing, progress, progressValue, pendingCount, completedCount, totalCount } =
@@ -81,7 +82,7 @@ export function CategorizationTray() {
                 <span>{progress}</span>
 
                 <span>
-                  {completedCount.toLocaleString()} / {totalCount.toLocaleString()}
+                  {formatNumber(completedCount)} / {formatNumber(totalCount)}
                 </span>
               </div>
 

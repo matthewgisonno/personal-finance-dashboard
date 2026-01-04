@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 
+import { formatNumber } from '@/lib/utils';
+
 import type { CategorizedTransaction } from '@/lib/services/types';
 
 interface TransactionProcessingContextType {
@@ -109,7 +111,7 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
         break;
       }
 
-      setProgress(`Processing ${pending.length.toLocaleString()} remaining items...`);
+      setProgress(`Processing ${formatNumber(pending.length)} remaining items...`);
 
       // Grab a chunk large enough for all concurrent workers
       const chunk = pending.slice(0, BATCH_SIZE * CONCURRENCY_LIMIT);
