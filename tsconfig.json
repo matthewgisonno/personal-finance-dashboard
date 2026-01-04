@@ -18,11 +18,13 @@
         "name": "next"
       }
     ],
+    "baseUrl": "src",
     "paths": {
       "@/*": ["./*"]
     }
   },
   "include": [
+    "src/types/tanstack-table.d.ts",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
