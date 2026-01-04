@@ -4,6 +4,8 @@ import { Suspense } from 'react';
 import { AIInsightsWrapper, AIInsightsSkeleton } from '@/components/dashboard';
 import { Header } from '@/components/layout';
 
+export const dynamic = 'force-dynamic';
+
 export default function DashboardPage() {
   return (
     <>

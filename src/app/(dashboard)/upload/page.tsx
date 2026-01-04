@@ -4,6 +4,8 @@ import { TransactionImporter } from '@/components/dashboard';
 import { Header } from '@/components/layout';
 import { db, accounts } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 export default async function UploadPage() {
   const accountList = await db.select().from(accounts);
 
