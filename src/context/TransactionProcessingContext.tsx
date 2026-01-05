@@ -51,13 +51,13 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
 
       setTransactions(prev => {
         const next = [...prev];
-        categorizations.forEach((cat: { id: string; category: string; confidence: number }) => {
-          const index = next.findIndex(t => t.id === cat.id);
+        categorizations.forEach((cat: { i: string; t: string; n: number }) => {
+          const index = next.findIndex(t => t.id === cat.i);
           if (index !== -1) {
             next[index] = {
               ...next[index],
-              category: cat.category,
-              categoryConfidence: cat.confidence.toString(),
+              category: cat.t,
+              categoryConfidence: cat.n.toString(),
               categorySource: 'ai',
               categoryStatus: 'completed'
             } as CategorizedTransaction;
@@ -99,8 +99,8 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
     processingRef.current = true;
     setIsProcessing(true);
 
-    const BATCH_SIZE = 20;
-    const CONCURRENCY_LIMIT = 5;
+    const BATCH_SIZE = 10;
+    const CONCURRENCY_LIMIT = 50;
 
     // Loop until no pending items remain
     while (true) {
