@@ -3,13 +3,11 @@
 import { CheckCircle } from 'lucide-react';
 import Papa from 'papaparse';
 import { useState } from 'react';
-import { Fragment } from 'react';
 
 import { useTransactionProcessing } from '@/context/TransactionProcessingContext';
+import { IngestInput } from '@/lib/schemas';
 
-import { Table, TableHeaders, TableRows } from '../ui/Table';
-
-import type { TransactionInput } from '@/lib/services/types';
+import { TransactionImporterDisplay } from './TransactionImporterDisplay';
 
 interface Account {
   id: string;
@@ -44,6 +42,7 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
         // Find the keys in the row
         const findValue = (row: Record<string, string>, keys: string[]) => {
           const rowKeys = Object.keys(row);
+          // O(k) where k = number of keys in the row
           for (const k of keys) {
             const match = rowKeys.find(rk => rk.toLowerCase() === k.toLowerCase());
             if (match) return row[match];
@@ -51,8 +50,9 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
           return null;
         };
 
-        // Map the rows to the TransactionInput type
-        const rawData: TransactionInput[] = results.data.map((row, index) => {
+        // Map the rows to the IngestInput['transactions'] type
+        // O(n) where n = number of rows in the CSV
+        const rawData: IngestInput['transactions'] = results.data.map((row, index) => {
           const typedRow = row as Record<string, string>;
           const desc = findValue(typedRow, ['description', 'desc', 'memo', 'merchant']) || 'Unknown';
           const amountStr = findValue(typedRow, ['amount', 'amt', 'value']) || '0';
@@ -72,12 +72,14 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
     });
   };
 
-  const processTransactions = async (rawData: TransactionInput[]) => {
+  const processTransactions = async (rawData: IngestInput['transactions']) => {
     setUploadStatus('Starting upload...');
-    const BATCH_SIZE = 500;
+
+    const BATCH_SIZE = 2500;
     const total = rawData.length;
 
     try {
+      // O(n) where n = number of transactions
       for (let i = 0; i < total; i += BATCH_SIZE) {
         const batch = rawData.slice(i, i + BATCH_SIZE);
         const currentBatchNum = Math.floor(i / BATCH_SIZE) + 1;
@@ -147,19 +149,7 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
       </div>
 
       {/* DATA TABLE - Only show when there are pending transactions */}
-      {pendingTransactions.length > 0 && (
-        <div className="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
-          <div className="overflow-x-auto">
-            <Table>
-              <Fragment key="table">
-                <TableHeaders headers={['Date', 'Description', 'Category', 'Source', 'Amount']} />
-
-                <TableRows rows={pendingTransactions} />
-              </Fragment>
-            </Table>
-          </div>
-        </div>
-      )}
+      {pendingTransactions.length > 0 && <TransactionImporterDisplay data={pendingTransactions} />}
 
       {/* SUCCESS MESSAGE - Show when all transactions are categorized */}
       {!uploading && transactions.length > 0 && pendingTransactions.length === 0 && (

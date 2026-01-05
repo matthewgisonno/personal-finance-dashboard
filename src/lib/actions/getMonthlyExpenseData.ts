@@ -48,6 +48,7 @@ export async function getMonthlyExpenseData(filters: ReportFilters = {}): Promis
     query.innerJoin(accounts, eq(transactions.accountId, accounts.id));
   }
 
+  // O(n) scan (DB side)
   const result = await query
     .where(and(...conditions))
     .groupBy(sql`TO_CHAR(${transactions.date}, 'YYYY-MM')`, categories.name)

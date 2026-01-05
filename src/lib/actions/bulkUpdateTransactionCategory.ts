@@ -16,6 +16,7 @@ export async function bulkUpdateTransactionCategory(transactionIds: string[], ca
     // Process in batches of 1000 to avoid query parameter limits
     const BATCH_SIZE = 1000;
 
+    // O(n) where n = transactionIds.length
     for (let i = 0; i < transactionIds.length; i += BATCH_SIZE) {
       const batch = transactionIds.slice(i, i + BATCH_SIZE);
 

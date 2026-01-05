@@ -5,14 +5,13 @@ import { z } from 'zod';
 
 import { DEFAULT_CATEGORIES } from '@/lib/constants';
 import { db, transactions } from '@/lib/db';
+import { type CategorizeAiInput, categorizeAiSchema } from '@/lib/schemas';
 import { getCategoryId } from '@/lib/services';
-
-import type { TransactionInput } from '@/lib/services/types';
 
 export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
-  let rawTransactions: TransactionInput[] = [];
+  let rawTransactions: CategorizeAiInput['transactions'] = [];
 
   try {
     // MOCK: Get the user
@@ -22,14 +21,25 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    rawTransactions = body.transactions || [];
+    const parseResult = categorizeAiSchema.safeParse(body);
+
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { error: 'Invalid request body', details: z.treeifyError(parseResult.error) },
+        { status: 400 }
+      );
+    }
+
+    rawTransactions = parseResult.data.transactions;
 
     // Minimized payload for the LLM
     // We send the index as the ID to save tokens and prevent the LLM from hallucinating/mangling UUIDs
-    const minimized = rawTransactions.map((t: TransactionInput, idx: number) => ({
+    // O(n)
+    const minimized = rawTransactions.map((t, idx) => ({
       i: idx.toString(),
       d: t.description
     }));
+    // (O(c)) where c = number of categories
     const validCategories = DEFAULT_CATEGORIES.map(c => c.name).join(', ');
 
     const { object } = await generateObject({
@@ -77,12 +87,15 @@ ${JSON.stringify(minimized)}`
 
     // DB UPDATE LOOP
     // Update the rows in Neon with the new AI results
+    // O(n) DB calls
     const updates = object.categorizations.map(async (cat: { i: string; t: string; n: number }) => {
       const index = parseInt(cat.i);
       const originalTransaction = rawTransactions[index];
 
       // Guard against bad indices or hallucinations
-      if (!originalTransaction) return;
+      if (!originalTransaction) {
+        return;
+      }
 
       const catId = await getCategoryId(cat.t);
 
@@ -101,6 +114,7 @@ ${JSON.stringify(minimized)}`
     await Promise.all(updates);
 
     // Remap back to UUIDs for the client
+    // O(n)
     const responseCategorizations = object.categorizations
       .map((cat: { i: string; t: string; n: number }) => {
         const index = parseInt(cat.i);
@@ -117,7 +131,8 @@ ${JSON.stringify(minimized)}`
   } catch (error) {
     console.error('AI Processing Error:', error);
     // FALLBACK: If AI crashes, return everything as Uncategorized so the UI doesn't break
-    const fallback = rawTransactions.map((t: TransactionInput) => ({
+    // O(n)
+    const fallback = rawTransactions.map(t => ({
       i: t.id,
       t: 'Uncategorized',
       n: 0

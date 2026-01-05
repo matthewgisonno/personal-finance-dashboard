@@ -13,6 +13,7 @@ export async function getTransactions(): Promise<CategorizedTransaction[]> {
     throw new Error('No user found');
   }
 
+  // O(n) where n = total transactions for user
   const data = await db
     .select({
       id: transactions.id,

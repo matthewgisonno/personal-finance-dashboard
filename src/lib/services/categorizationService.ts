@@ -39,6 +39,7 @@ const LOCAL_RULES: Record<string, string> = {
 
 export function attemptLocalCategorization(description: string) {
   const normalized = description.toLowerCase();
+  // O(k) where k = number of rules (linear scan)
   for (const [key, category] of Object.entries(LOCAL_RULES)) {
     if (normalized.includes(key)) {
       return { category, confidence: 1.0 };

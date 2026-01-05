@@ -29,6 +29,7 @@ export function ExpensesByCategoryChart({ data, dateRange }: ExpensesByCategoryC
 
   const total = data.reduce((sum, item) => sum + item.amount, 0);
 
+  // O(c) where c = number of categories
   const chartConfig = data.reduce(
     (acc, item) => {
       acc[item.category] = {
@@ -100,6 +101,7 @@ export function ExpensesByCategoryChart({ data, dateRange }: ExpensesByCategoryC
 
                 return (
                   <div className="flex flex-wrap justify-center gap-4 pt-4">
+                    {/* O(c^2) (c iterations * O(c) lookup) */}
                     {payload.map((entry, index) => {
                       // Cast to unknown first to avoid TS issues with implicit any if types are not perfect
                       const itemPayload = entry as unknown as LegendPayloadItem;

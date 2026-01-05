@@ -1,10 +1,3 @@
-export type TransactionInput = {
-  id: string;
-  date: string;
-  description: string;
-  amount: number;
-};
-
 export type CategorizedTransaction = {
   id: string;
   date: string | Date;

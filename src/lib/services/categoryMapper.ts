@@ -6,6 +6,8 @@ let categoryCache: Record<string, string> | null = null;
 export async function getCategoryMap() {
   if (categoryCache) return categoryCache;
 
+  // O(c) where c = number of categories (fetch + reduce)
+  // Subsequent calls are O(1) due to caching
   const allCats = await db.select().from(categories);
 
   categoryCache = allCats.reduce(

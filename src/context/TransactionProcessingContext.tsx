@@ -34,8 +34,10 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
 
   // Derived state
   const totalCount = transactions.length;
+  // O(n) where n = total transactions
   const completedCount = transactions.filter(t => t.categoryStatus === 'completed').length;
   const progressValue = totalCount === 0 ? 0 : (completedCount / totalCount) * 100;
+  // O(n)
   const pendingCount = transactions.filter(t => t.categoryStatus === 'pending').length;
 
   const runBatch = async (batch: CategorizedTransaction[], retryCount = 0) => {
@@ -51,6 +53,8 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
 
       setTransactions(prev => {
         const next = [...prev];
+        // O(b * n) where b = batch size (10) and n = total transactions
+        // (Iterating batch, then linear search for each item)
         categorizations.forEach((cat: { i: string; t: string; n: number }) => {
           const index = next.findIndex(t => t.id === cat.i);
           if (index !== -1) {
@@ -103,6 +107,7 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
     const CONCURRENCY_LIMIT = 50;
 
     // Loop until no pending items remain
+    // Total complexity: O(P) where P = pending transactions (processed in parallel batches)
     while (true) {
       // Get fresh pending list from ref
       const pending = transactionsRef.current.filter(t => t.categoryStatus === 'pending');

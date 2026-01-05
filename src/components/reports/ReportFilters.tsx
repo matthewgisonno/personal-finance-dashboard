@@ -48,6 +48,7 @@ export function ReportFilters({ accounts }: ReportFiltersProps) {
   });
 
   // Helper to update URL params
+  // O(p) where p = number of search params
   const createQueryString = useCallback(
     (updates: Record<string, string | null>) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -115,6 +116,7 @@ export function ReportFilters({ accounts }: ReportFiltersProps) {
 
                         <SelectContent>
                           <SelectItem value="all">All Accounts</SelectItem>
+                          {/* O(a) where a = number of accounts */}
                           {accounts.map(account => (
                             <SelectItem key={account.id} value={account.name}>
                               {account.name}

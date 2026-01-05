@@ -112,6 +112,7 @@ export async function generateInsightsAction(force: boolean = false): Promise<In
   const startDate = new Date();
   startDate.setDate(endDate.getDate() - 30);
 
+  // O(n) (calls getExpenseCategoryData)
   const categoryData = await getExpenseCategoryData({
     startDate,
     endDate

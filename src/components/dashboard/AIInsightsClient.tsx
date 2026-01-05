@@ -38,6 +38,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
   };
 
   useEffect(() => {
+    // O(1) check
     const shouldRefresh = () => {
       if (!initialInsight) return true;
       const generatedAt = new Date(initialInsight.generatedAt);
@@ -83,6 +84,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
                 <SelectValue placeholder="History" />
               </SelectTrigger>
               <SelectContent>
+                {/* O(h) where h = history length (limited to 10) */}
                 {history.map(item => (
                   <SelectItem key={item.id} value={item.id}>
                     {formatDateTime(item.generatedAt)}
@@ -168,6 +170,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
                 <CardDescription>Actionable tips to reduce your monthly spend</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* O(r) where r = recommendations count */}
                 {insights.recommendations &&
                   insights.recommendations.map((rec, i) => (
                     <div

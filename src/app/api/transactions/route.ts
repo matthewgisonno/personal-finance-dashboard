@@ -11,6 +11,7 @@ export async function GET() {
       return NextResponse.json({ error: 'No user found' }, { status: 401 });
     }
 
+    // 1 DB call to fetch n rows (work scales with n)
     const data = await db
       .select({
         id: transactions.id,

@@ -135,6 +135,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
               value={transaction.categoryId || ''}
               onValueChange={async value => {
                 // Optimistic update
+                // O(n) where n = total transactions in state
                 setData(prev =>
                   prev.map(t =>
                     t.id === transaction.id
@@ -156,6 +157,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
               </SelectTrigger>
 
               <SelectContent>
+                {/* O(c) where c = number of categories */}
                 {categories.map(cat => {
                   const IconComponent = cat.icon ? categoryIconMap[cat.icon] : null;
                   return (
@@ -314,6 +316,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
     const categoryName = categories.find(c => c.id === bulkCategory)?.name;
 
     // Optimistic update
+    // O(n) where n = total transactions (iterating to apply updates)
     setData(prev =>
       prev.map(t =>
         rowSelection[t.id]
@@ -492,6 +495,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
                 </SelectTrigger>
 
                 <SelectContent>
+                  {/* O(c) where c = number of categories */}
                   {categories.map(cat => {
                     const IconComponent = cat.icon ? categoryIconMap[cat.icon] : null;
                     return (
@@ -563,6 +567,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
             ))}
           </thead>
           <tbody className="grid relative" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
+            {/* O(v) where v = visible items + overscan (constant relative to n) */}
             {rowVirtualizer.getVirtualItems().map(virtualRow => {
               const row = rows[virtualRow.index] as Row<CategorizedTransaction>;
               return <TableBodyRow key={row.id} row={row} virtualRow={virtualRow} rowVirtualizer={rowVirtualizer} />;

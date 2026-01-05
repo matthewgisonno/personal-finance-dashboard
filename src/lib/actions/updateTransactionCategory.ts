@@ -13,6 +13,7 @@ export async function updateTransactionCategory(transactionId: string, categoryI
       throw new Error('User not found');
     }
 
+    // O(1) DB write
     await db
       .update(transactions)
       .set({

@@ -29,6 +29,7 @@ export async function getCategories(type?: CategoryType): Promise<CategoryOption
     query = query.where(eq(categories.type, CategoryType.Income));
   }
 
+  // O(c) where c = number of categories (DB fetch + sort)
   const result = await query.orderBy(asc(categories.name));
 
   return result.map(r => ({

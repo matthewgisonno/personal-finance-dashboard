@@ -32,6 +32,7 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
   // Get unique categories present in the data for coloring and stacking
   const dataCategories = useMemo(() => {
     const cats = new Set<string>();
+    // O(n) where n = data.length
     data.forEach(d => cats.add(d.category));
     return Array.from(cats);
   }, [data]);
@@ -40,6 +41,7 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
   const chartData = useMemo(() => {
     const monthMap = new Map<string, Record<string, string | number>>();
 
+    // O(n) where n = number of items in the data
     data.forEach(item => {
       const monthKey = item.month;
       if (!monthMap.has(monthKey)) {
@@ -59,8 +61,11 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
   }, [data]);
 
   const activeData = useMemo(() => {
-    if (selectedCategory === 'all') return chartData;
+    if (selectedCategory === 'all') {
+      return chartData;
+    }
 
+    // O(m) where m = number of months
     return chartData.map(item => ({
       ...item,
       value: item[selectedCategory] || 0
@@ -68,11 +73,13 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
   }, [chartData, selectedCategory]);
 
   const getCategoryColor = (catName: string) => {
+    // O(c) where c = number of categories
     const cat = categories.find(c => c.name === catName);
     return cat?.color || '#cccccc';
   };
 
   const getCategoryIcon = (catName: string) => {
+    // O(c) where c = number of categories
     const cat = categories.find(c => c.name === catName);
     return cat?.icon;
   };
@@ -102,6 +109,7 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
 
+              {/* O(c) where c = number of categories */}
               {categories.map(cat => {
                 const IconComponent = cat.icon ? categoryIconMap[cat.icon] : null;
                 return (
@@ -151,12 +159,14 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
               <Tooltip
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
+                    // O(n) where n = number of categories
                     const total = payload.reduce((sum, entry) => sum + (Number(entry.value) || 0), 0);
 
                     return (
                       <div className="rounded-lg border bg-background p-2 shadow-sm">
                         <div className="mb-2 border-b pb-1 font-medium">{label}</div>
                         <div className="grid gap-1">
+                          {/* O(c^2) (c iterations * O(c) lookup) */}
                           {[...payload].reverse().map((entry, index) => {
                             const catName = entry.name as string;
                             const value = entry.value as number;
@@ -198,6 +208,7 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
 
                   return (
                     <div className="flex flex-wrap justify-center gap-4 pt-4">
+                      {/* O(c^2) (c iterations * O(c) lookup) */}
                       {payload.map((entry, index) => {
                         const itemPayload = entry as unknown as LegendPayloadItem;
                         const catName = itemPayload.value;
@@ -228,6 +239,7 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
 
               {selectedCategory === 'all' ? (
                 // Stacked bars for all categories
+                // O(c^2) (c iterations * O(c) lookup)
                 dataCategories.map(catName => (
                   <Bar
                     key={catName}
