@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import { DEFAULT_CATEGORIES } from '@/lib/constants';
 import { db, transactions } from '@/lib/db';
-import { categorizeAiSchema, type CategorizeAiInput } from '@/lib/schemas';
+import { categorizeAiInputSchema, categorizeAiResponseSchema, type CategorizeAiInputType } from '@/lib/schemas';
 import { getCategoryId } from '@/lib/services';
 
 export const maxDuration = 60;
@@ -14,19 +14,8 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-// AI Response Schema
-const aiResponseSchema = z.object({
-  categorizations: z.array(
-    z.object({
-      i: z.string(),
-      t: z.string(),
-      n: z.number().transform(n => Math.max(0, Math.min(1, n)))
-    })
-  )
-});
-
 export async function POST(req: NextRequest) {
-  let rawTransactions: CategorizeAiInput['transactions'] = [];
+  let rawTransactions: CategorizeAiInputType['transactions'] = [];
 
   try {
     // MOCK: Get the user
@@ -36,8 +25,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate request body
+    // O(n) where n = number of transactions
     const body = await req.json();
-    const parsedBody = categorizeAiSchema.safeParse(body);
+    const parsedBody = categorizeAiInputSchema.safeParse(body);
 
     if (!parsedBody.success) {
       return NextResponse.json(
@@ -52,6 +42,7 @@ export async function POST(req: NextRequest) {
     rawTransactions = parsedBody.data.transactions;
 
     // Prepare AI input
+    // O(n) where n = number of transactions
     const minimized = rawTransactions.map((t, idx) => ({
       i: idx.toString(),
       d: t.description
@@ -60,6 +51,7 @@ export async function POST(req: NextRequest) {
     const validCategories = DEFAULT_CATEGORIES.map(c => c.name).join(', ');
 
     // OpenAI call
+    // O(n) - Token count is linear to number of transactions
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       temperature: 0,
@@ -98,7 +90,8 @@ OUTPUT FORMAT:
       throw new Error('Empty OpenAI response');
     }
 
-    const aiResult = aiResponseSchema.parse(JSON.parse(content));
+    // O(n) - Parse response
+    const aiResult = categorizeAiResponseSchema.parse(JSON.parse(content));
 
     // Build batched update rows
     const now = new Date();
@@ -116,6 +109,7 @@ OUTPUT FORMAT:
       const original = rawTransactions[index];
       if (!original) continue;
 
+      // O(1) (cached)
       const categoryId = await getCategoryId(cat.t);
 
       updateRows.push({
@@ -127,6 +121,7 @@ OUTPUT FORMAT:
     }
 
     // Batched update (single SQL statement)
+    // O(n) - Single query construction
     if (updateRows.length > 0) {
       await db.execute(sql`
         UPDATE ${transactions} AS t
