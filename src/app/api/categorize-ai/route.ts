@@ -1,14 +1,29 @@
-import { generateObject } from 'ai';
-import { eq, and } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
+import OpenAI from 'openai';
 import { z } from 'zod';
 
 import { DEFAULT_CATEGORIES } from '@/lib/constants';
 import { db, transactions } from '@/lib/db';
-import { type CategorizeAiInput, categorizeAiSchema } from '@/lib/schemas';
+import { categorizeAiSchema, type CategorizeAiInput } from '@/lib/schemas';
 import { getCategoryId } from '@/lib/services';
 
 export const maxDuration = 60;
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+// AI Response Schema
+const aiResponseSchema = z.object({
+  categorizations: z.array(
+    z.object({
+      i: z.string(),
+      t: z.string(),
+      n: z.number().transform(n => Math.max(0, Math.min(1, n)))
+    })
+  )
+});
 
 export async function POST(req: NextRequest) {
   let rawTransactions: CategorizeAiInput['transactions'] = [];
@@ -20,106 +35,135 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No user found' }, { status: 401 });
     }
 
+    // Validate request body
     const body = await req.json();
-    const parseResult = categorizeAiSchema.safeParse(body);
+    const parsedBody = categorizeAiSchema.safeParse(body);
 
-    if (!parseResult.success) {
+    if (!parsedBody.success) {
       return NextResponse.json(
-        { error: 'Invalid request body', details: z.treeifyError(parseResult.error) },
+        {
+          error: 'Invalid request body',
+          details: z.treeifyError(parsedBody.error)
+        },
         { status: 400 }
       );
     }
 
-    rawTransactions = parseResult.data.transactions;
+    rawTransactions = parsedBody.data.transactions;
 
-    // Minimized payload for the LLM
-    // We send the index as the ID to save tokens and prevent the LLM from hallucinating/mangling UUIDs
-    // O(n)
+    // Prepare AI input
     const minimized = rawTransactions.map((t, idx) => ({
       i: idx.toString(),
       d: t.description
     }));
-    // (O(c)) where c = number of categories
+
     const validCategories = DEFAULT_CATEGORIES.map(c => c.name).join(', ');
 
-    const { object } = await generateObject({
-      model: 'openai/gpt-4o-mini',
-      schema: z.object({
-        categorizations: z.array(
-          z.object({
-            i: z.string().describe('The transaction id (index) from the input'),
-            t: z.string().describe('The category name'),
-            n: z.number().describe('Confidence score (0-1)')
-          })
-        )
-      }),
-      prompt: `
-CONTEXT: You are an intelligent financial transaction classifier. Your job is to categorize raw bank transaction descriptions into standardized categories.
-
-LOGIC:
-1. Analyze the transaction description for keywords (e.g., merchant names, types of service).
-2. Match the description to the MOST appropriate category from the list of ALLOWED CATEGORIES.
-3. If the description is vague ("Venmo", "Check"), ambiguous, or contains no useful information, use "Uncategorized".
-4. Assign a confidence score (0.00 to 1.00) based on how certain you are of the match.
-   - 1.00: Exact match (e.g., "Netflix" -> "Entertainment")
-   - 0.80: Strong likelihood
-   - 0.50: Guess based on partial keywords
-   - 0.00: No clue (use "Uncategorized")
-
+    // OpenAI call
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      temperature: 0,
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an intelligent financial transaction classifier.'
+        },
+        {
+          role: 'user',
+          content: `
 ALLOWED CATEGORIES:
 ${validCategories}
 
-EXAMPLES:
-- Input: { "i": "0", "d": "NFLX" } -> { "i": "0", "t": "Entertainment", "n": 0.95 }
-- Input: { "i": "1", "d": "Safeway #2312" } -> { "i": "1", "t": "Groceries", "n": 0.98 }
-- Input: { "i": "2", "d": "Check 101" } -> { "i": "2", "t": "Uncategorized", "n": 0.0 }
-- Input: { "i": "3", "d": "In-N-Out Burger" } -> { "i": "3", "t": "Food & Drink", "n": 1.0 }
-
-RESTRICTIONS:
-- Return ONLY the JSON object with the "categorizations" array.
-- Do NOT output markdown or explanation text.
-- Use ONLY the categories listed above.
-- You MUST pass back the exact "i" (id) from the input for each transaction.
+RULES:
+- Use ONLY allowed categories
+- Return ONLY valid JSON
+- Confidence must be between 0 and 1
 
 INPUT TRANSACTIONS:
-${JSON.stringify(minimized)}`
+${JSON.stringify(minimized)}
+
+OUTPUT FORMAT:
+{
+  "categorizations": [
+    { "i": "0", "t": "Groceries", "n": 0.95 }
+  ]
+}
+          `
+        }
+      ]
     });
 
-    // DB UPDATE LOOP
-    // Update the rows in Neon with the new AI results
-    // O(n) DB calls
-    const updates = object.categorizations.map(async (cat: { i: string; t: string; n: number }) => {
-      const index = parseInt(cat.i);
-      const originalTransaction = rawTransactions[index];
+    const content = completion.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error('Empty OpenAI response');
+    }
 
-      // Guard against bad indices or hallucinations
-      if (!originalTransaction) {
-        return;
-      }
+    const aiResult = aiResponseSchema.parse(JSON.parse(content));
 
-      const catId = await getCategoryId(cat.t);
+    // Build batched update rows
+    const now = new Date();
 
-      await db
-        .update(transactions)
-        .set({
-          categoryId: catId,
-          categoryStatus: 'completed',
-          categorySource: 'ai',
-          categoryConfidence: cat.n.toString(),
-          updatedAt: new Date()
-        })
-        .where(and(eq(transactions.id, originalTransaction.id), eq(transactions.userId, user.id)));
-    });
+    const updateRows: {
+      id: string;
+      userId: string;
+      categoryId: string;
+      confidence: number;
+    }[] = [];
 
-    await Promise.all(updates);
+    // O(n) where n = number of categorizations
+    for (const cat of aiResult.categorizations) {
+      const index = Number(cat.i);
+      const original = rawTransactions[index];
+      if (!original) continue;
 
-    // Remap back to UUIDs for the client
-    // O(n)
-    const responseCategorizations = object.categorizations
-      .map((cat: { i: string; t: string; n: number }) => {
-        const index = parseInt(cat.i);
+      const categoryId = await getCategoryId(cat.t);
+
+      updateRows.push({
+        id: original.id,
+        userId: user.id,
+        categoryId,
+        confidence: cat.n // already clamped
+      });
+    }
+
+    // Batched update (single SQL statement)
+    if (updateRows.length > 0) {
+      await db.execute(sql`
+        UPDATE ${transactions} AS t
+        SET
+          category_id = v.category_id,
+          category_status = 'completed',
+          category_source = 'ai',
+          category_confidence = v.confidence,
+          updated_at = ${now}
+        FROM (
+          SELECT
+            v.id::uuid              AS id,
+            v.user_id::uuid         AS user_id,
+            v.category_id::uuid     AS category_id,
+            v.confidence::numeric   AS confidence
+          FROM (
+            VALUES
+            ${sql.join(
+              updateRows.map(r => sql`(${r.id}, ${r.userId}, ${r.categoryId}, ${r.confidence})`),
+              sql`,`
+            )}
+          ) AS v(id, user_id, category_id, confidence)
+        ) AS v
+        WHERE
+          t.id = v.id
+          AND t.user_id = v.user_id
+      `);
+    }
+
+    // Remap index IDs → UUIDs
+    // O(n) where n = number of categorizations
+    const responseCategorizations = aiResult.categorizations
+      .map(cat => {
+        const index = Number(cat.i);
         const original = rawTransactions[index];
         if (!original) return null;
+
         return {
           ...cat,
           i: original.id
@@ -130,13 +174,15 @@ ${JSON.stringify(minimized)}`
     return NextResponse.json({ categorizations: responseCategorizations });
   } catch (error) {
     console.error('AI Processing Error:', error);
-    // FALLBACK: If AI crashes, return everything as Uncategorized so the UI doesn't break
-    // O(n)
+
+    // Fallback
+    // O(n) where n = number of transactions
     const fallback = rawTransactions.map(t => ({
       i: t.id,
       t: 'Uncategorized',
       n: 0
     }));
+
     return NextResponse.json({ categorizations: fallback });
   }
 }
