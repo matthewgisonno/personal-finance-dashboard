@@ -1,6 +1,6 @@
 'use client';
 
-import { Receipt, Upload, LayoutDashboard, PieChart } from 'lucide-react';
+import { Receipt, Upload, LayoutDashboard, PieChart, Settings } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -32,16 +32,16 @@ export function Sidebar({ onNavigate, user }: AppSidebarProps) {
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       {/* Logo */}
-      <div className="flex items-center border-b border-sidebar-border px-6 py-4">
-        <div className="flex w-full justify-center items-center">
-          <Link href="/">
-            <Image src="/finance-flow-logo-sm.png" alt="FinanceFlow" width={159} height={41} loading="eager" />
-          </Link>
-        </div>
+      <div className="flex items-center px-4 py-6">
+        <Link href="/" onClick={onNavigate} className="flex items-center gap-2 px-2">
+          <div className="relative h-8 w-32">
+            <Image src="/finance-flow-logo-sm.png" alt="FinanceFlow" fill className="object-contain" loading="eager" />
+          </div>
+        </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-4">
+      <nav className="flex-1 space-y-1 px-3 py-2">
         {navigation.map(item => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
@@ -52,13 +52,18 @@ export function Sidebar({ onNavigate, user }: AppSidebarProps) {
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                'group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-all duration-200',
                 isActive
                   ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                  : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
+                  : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
               )}
             >
-              <Icon className="h-5 w-5" />
+              <Icon
+                className={cn(
+                  'h-4 w-4 transition-colors',
+                  isActive ? 'text-sidebar-primary' : 'text-sidebar-foreground/50 group-hover:text-sidebar-foreground'
+                )}
+              />
               {item.label}
             </Link>
           );
@@ -66,19 +71,22 @@ export function Sidebar({ onNavigate, user }: AppSidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-sidebar-border p-4">
-        <div className="flex items-center gap-3">
+      <div className="p-2 mt-auto">
+        <div className="flex items-center gap-3 rounded-xl bg-sidebar-accent p-3 hover:bg-sidebar-accent transition-colors cursor-pointer group">
           {user?.avatar ? (
-            <div className="relative h-8 w-8 overflow-hidden rounded-full">
-              <Image src={user.avatar} alt={user.name || 'User'} fill sizes="32px" className="object-cover" />
+            <div className="relative h-9 w-9 overflow-hidden rounded-full ring-2 ring-sidebar-border group-hover:ring-sidebar-ring/50 transition-all">
+              <Image src={user.avatar} alt={user.name || 'User'} fill sizes="36px" className="object-cover" />
             </div>
           ) : (
-            <div className="h-8 w-8 rounded-full bg-sidebar-accent" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground font-semibold">
+              {user?.name?.[0] || 'U'}
+            </div>
           )}
-          <div className="flex-1 text-sm overflow-hidden">
-            <div className="font-medium truncate">{user?.name || 'Guest User'}</div>
-            <div className="text-xs text-sidebar-foreground/60 truncate">{user?.email || 'guest@example.com'}</div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-medium text-sidebar-foreground">{user?.name || 'Guest User'}</div>
+            <div className="text-xs text-sidebar-foreground/50">{user?.email || 'guest@example.com'}</div>
           </div>
+          <Settings className="h-4 w-4 text-sidebar-foreground/40 group-hover:text-sidebar-foreground transition-colors" />
         </div>
       </div>
     </div>

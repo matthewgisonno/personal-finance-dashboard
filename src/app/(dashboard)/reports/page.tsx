@@ -2,7 +2,7 @@ import { subYears } from 'date-fns';
 import { PieChart } from 'lucide-react';
 
 import { EmptyState } from '@/components/common/EmptyState';
-import { Header } from '@/components/layout';
+import { Header, PageContainer } from '@/components/layout';
 import { ExpensesByCategoryChart, MonthlyExpensesChart, ReportFilters } from '@/components/reports';
 import { getExpenseCategoryData, getAccounts, getMonthlyExpenseData, getCategories, CategoryType } from '@/lib/actions';
 
@@ -29,17 +29,23 @@ export default async function ReportsPage(props: { searchParams: SearchParams })
     <>
       <Header title="Reports" icon={<PieChart className="h-6 w-6" />} description="View your financial reports" />
 
-      {expenseData.length === 0 && monthlyData.length === 0 && <EmptyState />}
+      <PageContainer>
+        {expenseData.length === 0 && monthlyData.length === 0 && <EmptyState />}
 
-      {expenseData.length > 0 && monthlyData.length > 0 && <ReportFilters accounts={accounts} />}
+        {expenseData.length > 0 && monthlyData.length > 0 && <ReportFilters accounts={accounts} />}
 
-      {expenseData.length > 0 && (
-        <ExpensesByCategoryChart data={expenseData} dateRange={{ from: startDate, to: endDate }} />
-      )}
+        {expenseData.length > 0 && (
+          <ExpensesByCategoryChart data={expenseData} dateRange={{ from: startDate, to: endDate }} />
+        )}
 
-      {monthlyData.length > 0 && (
-        <MonthlyExpensesChart data={monthlyData} categories={categories} dateRange={{ from: startDate, to: endDate }} />
-      )}
+        {monthlyData.length > 0 && (
+          <MonthlyExpensesChart
+            data={monthlyData}
+            categories={categories}
+            dateRange={{ from: startDate, to: endDate }}
+          />
+        )}
+      </PageContainer>
     </>
   );
 }

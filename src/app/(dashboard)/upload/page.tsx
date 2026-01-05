@@ -1,7 +1,7 @@
 import { Upload } from 'lucide-react';
 
 import { TransactionImporter } from '@/components/dashboard';
-import { Header } from '@/components/layout';
+import { Header, PageContainer } from '@/components/layout';
 import { db, accounts } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
@@ -17,7 +17,9 @@ export default async function UploadPage() {
         description="Import your bank transactions from a CSV file"
       />
 
-      <TransactionImporter accounts={accountList} />
+      <PageContainer>
+        <TransactionImporter accounts={accountList} />
+      </PageContainer>
     </>
   );
 }

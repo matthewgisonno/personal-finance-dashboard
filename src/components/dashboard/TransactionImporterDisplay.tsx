@@ -107,14 +107,14 @@ export function TransactionImporterDisplay({ data }: TransactionImporterDisplayP
         cell: info => {
           const val = info.getValue<string | Date>();
           const date = val instanceof Date ? val : new Date(val);
-          return <span className="text-gray-500 text-sm">{formatDate(date)}</span>;
+          return <span className="text-muted-foreground text-sm">{formatDate(date)}</span>;
         }
       },
       {
         accessorKey: 'description',
         header: 'Description',
         size: 400,
-        cell: info => <span className="font-medium text-gray-900 text-sm">{info.getValue<string>()}</span>
+        cell: info => <span className="font-medium text-foreground text-sm">{info.getValue<string>()}</span>
       },
       {
         accessorKey: 'category',
@@ -143,7 +143,7 @@ export function TransactionImporterDisplay({ data }: TransactionImporterDisplayP
         cell: info => {
           const val = info.getValue<number | string>();
           const num = typeof val === 'string' ? parseFloat(val) : val;
-          return <span className="text-gray-900 text-right font-mono text-sm">{formatCurrency(num as number)}</span>;
+          return <span className="text-foreground text-right font-mono text-sm">{formatCurrency(num as number)}</span>;
         },
         meta: { align: 'right' }
       }
@@ -177,7 +177,7 @@ export function TransactionImporterDisplay({ data }: TransactionImporterDisplayP
   });
 
   return (
-    <div className="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
+    <div className="bg-card shadow rounded-lg overflow-hidden border border-border">
       <div
         className="h-[600px] overflow-auto relative"
         ref={tableContainerRef}
@@ -198,14 +198,14 @@ export function TransactionImporterDisplay({ data }: TransactionImporterDisplayP
         }}
       >
         <table className="grid w-full">
-          <thead className="grid sticky top-0 z-10 bg-gray-50 border-b border-gray-200">
+          <thead className="grid sticky top-0 z-10 bg-muted border-b border-border">
             {table.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id} className="flex w-full">
                 {headerGroup.headers.map(header => (
                   <th
                     key={header.id}
                     className={cn(
-                      'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider flex items-center',
+                      'px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center',
                       header.column.columnDef.meta?.align === 'right' && 'justify-end'
                     )}
                     style={{ width: header.getSize() }}
@@ -223,7 +223,7 @@ export function TransactionImporterDisplay({ data }: TransactionImporterDisplayP
                 <tr
                   key={row.id}
                   data-index={virtualRow.index}
-                  className="border-b border-gray-200 hover:bg-gray-50 transition-colors flex w-full absolute items-center"
+                  className="border-b border-border hover:bg-muted/50 transition-colors flex w-full absolute items-center"
                   style={{
                     transform: `translateY(${virtualRow.start}px)`,
                     height: `${virtualRow.size}px`

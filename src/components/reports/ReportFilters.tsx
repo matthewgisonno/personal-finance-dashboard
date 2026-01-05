@@ -88,7 +88,7 @@ export function ReportFilters({ accounts }: ReportFiltersProps) {
   const currentAccount = searchParams.get('account') || 'all';
 
   return (
-    <Card className="gap-2 mb-4 transition-[padding] duration-300">
+    <Card className="gap-2 transition-[padding] duration-300">
       <Collapsible open={!isMobile ? true : isFiltersCollapsed} onOpenChange={setIsFiltersCollapsed}>
         <CollapsibleTrigger className="group w-full flex items-center justify-between" tabIndex={-1}>
           <CardHeader className="w-full">

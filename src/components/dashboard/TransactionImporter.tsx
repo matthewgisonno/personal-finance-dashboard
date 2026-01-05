@@ -109,19 +109,19 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6 font-sans">
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center bg-gray-50">
-        <h2 className="text-xl font-bold mb-2 text-gray-800">Import Transactions</h2>
+    <>
+      <div className="border-2 border-dashed border-border rounded-lg p-10 text-center bg-muted/50">
+        <h2 className="text-xl font-bold mb-2 text-foreground">Import Transactions</h2>
 
         {/* ACCOUNT SELECTOR */}
         <div className="mb-4 text-left max-w-md mx-auto">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Select Account</label>
+          <label className="block text-sm font-medium text-muted-foreground mb-1">Select Account</label>
 
           <select
             value={selectedAccountId}
             onChange={e => setSelectedAccountId(e.target.value)}
             disabled={uploading}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border disabled:opacity-50"
+            className="block w-full rounded-md border-input bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring sm:text-sm p-2 border disabled:opacity-50"
           >
             {accounts.map(acc => (
               <option key={acc.id} value={acc.id}>
@@ -133,19 +133,19 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
 
         {/* INPUT STATE */}
         <div className="space-y-4">
-          <p className="text-sm text-gray-500">Upload a CSV with columns: Date, Description, Amount</p>
+          <p className="text-sm text-muted-foreground">Upload a CSV with columns: Date, Description, Amount</p>
 
           <input
             type="file"
             accept=".csv"
             onChange={handleFileUpload}
             disabled={uploading}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer disabled:opacity-50"
+            className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer disabled:opacity-50"
           />
         </div>
 
         {/* UPLOAD STATUS */}
-        {uploading && <p className="mt-4 text-sm text-blue-600 animate-pulse">{uploadStatus}</p>}
+        {uploading && <p className="mt-4 text-sm text-primary animate-pulse">{uploadStatus}</p>}
       </div>
 
       {/* DATA TABLE - Only show when there are pending transactions */}
@@ -153,22 +153,22 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
 
       {/* SUCCESS MESSAGE - Show when all transactions are categorized */}
       {!uploading && transactions.length > 0 && pendingTransactions.length === 0 && (
-        <div className="bg-white shadow rounded-lg p-10 text-center border border-gray-200">
+        <div className="bg-card shadow rounded-lg p-10 text-center border border-border">
           <div className="flex flex-col items-center justify-center space-y-4">
             <div className="rounded-full bg-green-100 p-3">
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
 
             <div className="space-y-1">
-              <h3 className="text-lg font-medium text-gray-900">All transactions categorized</h3>
+              <h3 className="text-lg font-medium text-foreground">All transactions categorized</h3>
 
-              <p className="text-gray-500">
+              <p className="text-muted-foreground">
                 All transactions have been categorized. Upload more transactions to proceed.
               </p>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

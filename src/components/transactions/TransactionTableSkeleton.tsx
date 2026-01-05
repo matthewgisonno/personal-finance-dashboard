@@ -22,10 +22,10 @@ export function TransactionTableSkeleton() {
       </div>
 
       {/* Table Skeleton */}
-      <div className="h-150 overflow-hidden relative rounded-md border">
+      <div className="h-150 overflow-hidden relative rounded-md border border-border">
         <div className="grid w-full">
           {/* Header */}
-          <div className="flex w-full bg-white border-b border-gray-200 sticky top-0 z-10">
+          <div className="flex w-full bg-card border-b border-border sticky top-0 z-10">
             <div className="flex px-2 py-2 font-semibold justify-start text-left" style={{ width: 150 }}>
               <Skeleton className="h-4 w-20" />
             </div>
@@ -51,7 +51,10 @@ export function TransactionTableSkeleton() {
 
           {/* Body Rows */}
           {Array.from({ length: 15 }).map((_, i) => (
-            <div key={i} className="flex w-full border-b items-center h-[53px] hover:bg-gray-50">
+            <div
+              key={i}
+              className="flex w-full border-b border-border items-center h-[53px] bg-white hover:bg-muted/50 transition-colors"
+            >
               <div className="p-2" style={{ width: 150 }}>
                 <Skeleton className="h-4 w-24" />
               </div>

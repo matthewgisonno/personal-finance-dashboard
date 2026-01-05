@@ -349,7 +349,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
 
   return (
     <>
-      <Card className="gap-2 mb-4 transition-[padding] duration-300">
+      <Card className="gap-2 transition-[padding] duration-300">
         <Collapsible open={!isMobile ? true : isFiltersCollapsed} onOpenChange={setIsFiltersCollapsed}>
           <CollapsibleTrigger className="group w-full flex items-center justify-between" tabIndex={-1}>
             <CardHeader className="w-full">
@@ -461,7 +461,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
       </Card>
 
       {Object.keys(rowSelection).length > 0 && (
-        <Card className="mb-4 bg-muted/50 border-primary/20 gap-0">
+        <Card className="gap-0">
           <CardHeader className="">
             <CardTitle className="text-sm font-medium flex items-center justify-between">
               <span>
@@ -472,7 +472,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
                 variant="ghost"
                 size="sm"
                 onClick={() => setRowSelection({})}
-                className="h-auto p-0 text-muted-foreground hover:text-foreground"
+                className="h-auto p-0 text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <X className="size-4 mr-1" />
                 Clear Selection
@@ -518,21 +518,21 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
               </Select>
             </div>
 
-            <Button onClick={handleBulkUpdate} disabled={!bulkCategory || isBulkUpdating}>
+            <Button onClick={handleBulkUpdate} disabled={!bulkCategory || isBulkUpdating} className="cursor-pointer">
               {isBulkUpdating ? 'Updating...' : 'Update Transactions'}
             </Button>
           </CardContent>
         </Card>
       )}
 
-      <div className="mb-4 text-sm text-gray-500">
+      <div className="text-sm text-muted-foreground">
         Showing <strong>{formatNumber(table.getFilteredRowModel().rows.length)}</strong> of{' '}
         <strong>{formatNumber(data.length)}</strong> transactions
       </div>
 
-      <div className="h-150 overflow-auto relative rounded-md border" ref={tableContainerRef}>
+      <div className="h-150 overflow-auto relative rounded-md border border-border" ref={tableContainerRef}>
         <table className="grid w-full">
-          <thead className="grid sticky top-0 z-10 bg-white border-b border-gray-200">
+          <thead className="grid sticky top-0 z-10 bg-card border-b border-border">
             {table.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id} className="flex w-full">
                 {headerGroup.headers.map(header => {
@@ -591,7 +591,7 @@ function TableBodyRow({ row, virtualRow, rowVirtualizer }: TableBodyRowProps) {
       data-index={virtualRow.index}
       ref={node => rowVirtualizer.measureElement(node)}
       key={row.id}
-      className="border-b hover:bg-gray-50 flex w-full absolute"
+      className="border-b border-border bg-white hover:bg-muted/50 flex w-full absolute"
       style={{ transform: `translateY(${virtualRow.start}px)` }}
     >
       {row.getVisibleCells().map(cell => {

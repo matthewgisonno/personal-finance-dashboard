@@ -2,7 +2,7 @@ import { LayoutDashboard } from 'lucide-react';
 import { Suspense } from 'react';
 
 import { AIInsightsWrapper, AIInsightsSkeleton } from '@/components/dashboard';
-import { Header } from '@/components/layout';
+import { Header, PageContainer } from '@/components/layout';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,9 +15,11 @@ export default function DashboardPage() {
         description="View your financial insights"
       />
 
-      <Suspense fallback={<AIInsightsSkeleton />}>
-        <AIInsightsWrapper />
-      </Suspense>
+      <PageContainer>
+        <Suspense fallback={<AIInsightsSkeleton />}>
+          <AIInsightsWrapper />
+        </Suspense>
+      </PageContainer>
     </>
   );
 }

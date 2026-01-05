@@ -30,9 +30,9 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
   const isMobile = useMobile();
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground">
       {/* Sidebar - Desktop */}
-      <aside className="hidden w-64 border-r border-sidebar-border md:block">
+      <aside className="hidden w-72 shrink-0 bg-sidebar border-r border-sidebar-border md:block z-30">
         <Sidebar user={user} />
       </aside>
 
@@ -42,39 +42,46 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
           {/* Backdrop */}
           <div
             className={cn(
-              'fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 md:hidden',
+              'fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 md:hidden',
               sidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
             )}
             onClick={() => setSidebarOpen(false)}
-          >
-            <Button
-              variant="secondary"
-              size="icon"
-              className="right-4 top-4 absolute cursor-pointer"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X className="h-6 w-6" />
-            </Button>
-          </div>
+          />
 
           {/* Sliding Sidebar */}
           <aside
             className={cn(
-              'fixed inset-y-0 left-0 z-50 w-64 transform border-r border-sidebar-border transition-transform duration-300 ease-in-out md:hidden',
+              'fixed inset-y-0 left-0 z-50 w-72 transform bg-sidebar border-r border-sidebar-border shadow-2xl transition-transform duration-300 ease-in-out md:hidden',
               sidebarOpen ? 'translate-x-0' : '-translate-x-full'
             )}
           >
+            <div className="absolute right-4 top-4 z-50">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-sidebar-foreground/70 hover:text-sidebar-foreground"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <X className="h-5 w-5" />
+                <span className="sr-only">Close sidebar</span>
+              </Button>
+            </div>
             <Sidebar user={user} onNavigate={() => setSidebarOpen(false)} />
           </aside>
         </>
       )}
 
       {/* Main Content */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden relative">
         {/* Mobile Header Toggle */}
-        <div className="flex h-16 items-center gap-2 border-b border-border bg-background p-4 md:hidden">
-          <Button variant="ghost" size="icon" className="cursor-pointer" onClick={() => setSidebarOpen(true)}>
-            <Menu className="h-6 w-6" />
+        <div className="flex h-14 items-center gap-3 border-b border-border bg-white px-4 md:hidden z-20 sticky top-0 shadow-sm">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="-ml-2 text-foreground/70 hover:text-foreground"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <Menu className="h-5 w-5" />
             <span className="sr-only">Open sidebar</span>
           </Button>
 
@@ -84,7 +91,7 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
         </div>
 
         {/* Dashboard Content */}
-        <main className="flex-1 overflow-y-auto bg-background p-4 md:p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-background scroll-smooth">{children}</main>
       </div>
     </div>
   );

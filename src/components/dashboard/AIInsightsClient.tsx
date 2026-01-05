@@ -62,7 +62,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
   };
 
   return (
-    <div className="space-y-6">
+    <>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
@@ -94,11 +94,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
             </Select>
           )}
 
-          <Button
-            onClick={() => handleGenerateInsights(true)}
-            disabled={isPending}
-            variant={insights ? 'outline' : 'default'}
-          >
+          <Button onClick={() => handleGenerateInsights(true)} disabled={isPending}>
             {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -115,30 +111,30 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
       {!insights && <EmptyState />}
 
       {insights && (
-        <div className="space-y-4">
+        <>
           <div className="flex items-center justify-end text-sm text-muted-foreground">
             Generated on {formatFullDateTime(insights.generatedAt)}
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2">
             {/* Summary Card */}
-            <Card className="col-span-2 bg-linear-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 border-purple-200 dark:border-purple-900">
+            <Card className="col-span-2 border-blue-100">
               <CardHeader>
-                <CardTitle className="text-purple-700 dark:text-purple-300 flex items-center gap-2">
+                <CardTitle className="text-blue-700 flex items-center gap-2">
                   <Lightbulb className="h-5 w-5" />
                   Executive Summary
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-lg font-medium text-slate-700 dark:text-slate-300">{insights.summary}</p>
+                <p className="text-lg font-medium text-slate-800">{insights.summary}</p>
               </CardContent>
             </Card>
 
             {/* Budget Alerts */}
             {insights.budgetAlerts && insights.budgetAlerts.length > 0 && (
-              <Card className="col-span-2 md:col-span-1 border-orange-200 dark:border-orange-900 bg-orange-50 dark:bg-orange-950/10">
+              <Card className="col-span-2 md:col-span-1 border-orange-200 bg-orange-50">
                 <CardHeader>
-                  <CardTitle className="text-orange-700 dark:text-orange-400 flex items-center gap-2">
+                  <CardTitle className="text-orange-600 flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5" />
                     Attention Needed
                   </CardTitle>
@@ -146,7 +142,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
                 <CardContent>
                   <ul className="space-y-2">
                     {insights.budgetAlerts.map((alert, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-orange-800 dark:text-orange-300">
+                      <li key={i} className="flex items-start gap-2 text-sm text-orange-700">
                         <span>•</span>
                         {alert}
                       </li>
@@ -164,7 +160,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
             >
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <TrendingDown className="h-5 w-5 text-green-500" />
+                  <TrendingDown className="h-5 w-5 text-green-600" />
                   Savings Opportunities
                 </CardTitle>
                 <CardDescription>Actionable tips to reduce your monthly spend</CardDescription>
@@ -173,26 +169,21 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
                 {/* O(r) where r = recommendations count */}
                 {insights.recommendations &&
                   insights.recommendations.map((rec, i) => (
-                    <div
-                      key={i}
-                      className="flex flex-col space-y-1 p-3 rounded-lg border bg-card text-card-foreground shadow-sm"
-                    >
+                    <div key={i} className="flex flex-col space-y-1 p-3 rounded-lg border bg-white shadow-sm">
                       <div className="flex justify-between items-center">
-                        <span className="font-semibold text-sm bg-secondary px-2 py-0.5 rounded-md text-secondary-foreground">
+                        <span className="font-semibold text-sm bg-gray-100 px-2 py-0.5 rounded-md text-gray-700">
                           {rec.category}
                         </span>
-                        <span className="text-green-600 dark:text-green-400 font-bold text-sm">
-                          Save ~${rec.potentialSavings}/mo
-                        </span>
+                        <span className="text-green-600 font-bold text-sm">Save ~${rec.potentialSavings}/mo</span>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-1">{rec.tip}</p>
+                      <p className="text-sm text-gray-600 mt-1">{rec.tip}</p>
                     </div>
                   ))}
               </CardContent>
             </Card>
           </div>
-        </div>
+        </>
       )}
-    </div>
+    </>
   );
 }

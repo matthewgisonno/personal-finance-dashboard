@@ -48,14 +48,14 @@ export function CategorizationTray() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50 w-80 md:w-96 shadow-xl transition-all duration-300">
-      <Card className="border-t-4 border-t-blue-500 overflow-hidden">
-        <div className="bg-white p-4">
+      <Card className="border-t-4 border-t-sidebar-primary overflow-hidden bg-white border-x border-b border-gray-200">
+        <div className="p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               {isProcessing ? (
-                <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+                <Loader2 className="h-4 w-4 animate-spin text-sidebar-primary" />
               ) : (
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-green-600" />
               )}
 
               <h3 className="font-medium text-sm text-gray-900">
@@ -64,11 +64,21 @@ export function CategorizationTray() {
             </div>
 
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsExpanded(!isExpanded)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-gray-500 hover:text-gray-900"
+                onClick={() => setIsExpanded(!isExpanded)}
+              >
                 {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
               </Button>
 
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsVisible(false)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 text-gray-500 hover:text-gray-900"
+                onClick={() => setIsVisible(false)}
+              >
                 <span className="sr-only">Close</span>
 
                 <span className="text-xs">✕</span>
@@ -89,7 +99,7 @@ export function CategorizationTray() {
               <Progress value={progressValue} className="h-2" />
 
               {isProcessing && (
-                <p className="text-xs text-blue-600 animate-pulse">AI is analyzing your transactions...</p>
+                <p className="text-xs text-sidebar-primary animate-pulse">AI is analyzing your transactions...</p>
               )}
             </div>
           )}

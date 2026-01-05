@@ -1,7 +1,7 @@
 import { Receipt } from 'lucide-react';
 import { Suspense } from 'react';
 
-import { Header } from '@/components/layout';
+import { Header, PageContainer } from '@/components/layout';
 import { TransactionListWrapper, TransactionTableSkeleton } from '@/components/transactions';
 
 export const dynamic = 'force-dynamic';
@@ -15,9 +15,11 @@ export default function TransactionsPage() {
         description="Manage your financial transactions"
       />
 
-      <Suspense fallback={<TransactionTableSkeleton />}>
-        <TransactionListWrapper />
-      </Suspense>
+      <PageContainer>
+        <Suspense fallback={<TransactionTableSkeleton />}>
+          <TransactionListWrapper />
+        </Suspense>
+      </PageContainer>
     </>
   );
 }
