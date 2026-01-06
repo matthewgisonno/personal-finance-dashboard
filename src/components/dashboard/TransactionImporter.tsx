@@ -4,6 +4,8 @@ import { CheckCircle, UploadCloud } from 'lucide-react';
 import Papa from 'papaparse';
 import { useState } from 'react';
 
+import { Field, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/Field';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { useTransactionProcessing } from '@/context/TransactionProcessingContext';
 import { cn } from '@/lib/utils';
 
@@ -155,20 +157,31 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
 
         {/* ACCOUNT SELECTOR */}
         <div className="mb-4 text-left max-w-md mx-auto">
-          <label className="block text-sm font-medium text-muted-foreground mb-1">Select Account</label>
+          <FieldSet>
+            <FieldGroup>
+              <Field>
+                <FieldLabel>Select Account:</FieldLabel>
 
-          <select
-            value={selectedAccountId}
-            onChange={e => setSelectedAccountId(e.target.value)}
-            disabled={uploading}
-            className="block w-full rounded-md border-input bg-white text-foreground shadow-sm focus:border-ring focus:ring-ring sm:text-sm p-2 border disabled:opacity-50"
-          >
-            {accounts.map(acc => (
-              <option key={acc.id} value={acc.id}>
-                {acc.name}
-              </option>
-            ))}
-          </select>
+                <Select
+                  value={selectedAccountId}
+                  onValueChange={value => setSelectedAccountId(value)}
+                  disabled={uploading}
+                >
+                  <SelectTrigger className="h-8 w-full bg-white">
+                    <SelectValue placeholder="Select account" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {accounts.map(account => (
+                      <SelectItem key={account.id} value={account.id}>
+                        {account.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+            </FieldGroup>
+          </FieldSet>
         </div>
 
         {/* INPUT STATE */}

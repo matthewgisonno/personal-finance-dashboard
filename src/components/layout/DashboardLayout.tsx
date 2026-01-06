@@ -6,8 +6,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
-import { useMobile } from '@/lib/hooks';
-import { cn } from '@/lib/utils/classNames';
+import { cn } from '@/lib/utils';
 
 import { Sidebar } from './Sidebar';
 
@@ -27,7 +26,6 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, user }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const isMobile = useMobile();
 
   return (
     <div className="flex h-screen overflow-hidden bg-background text-foreground">
@@ -37,39 +35,38 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
       </aside>
 
       {/* Sidebar - Mobile Overlay */}
-      {isMobile && (
-        <>
-          {/* Backdrop */}
-          <div
-            className={cn(
-              'fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 md:hidden',
-              sidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
-            )}
-            onClick={() => setSidebarOpen(false)}
-          />
 
-          {/* Sliding Sidebar */}
-          <aside
-            className={cn(
-              'fixed inset-y-0 left-0 z-50 w-72 transform bg-sidebar border-r border-sidebar-border shadow-2xl transition-transform duration-300 ease-in-out md:hidden',
-              sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-            )}
-          >
-            <div className="absolute right-4 top-4 z-50">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-sidebar-foreground/70 hover:text-sidebar-foreground"
-                onClick={() => setSidebarOpen(false)}
-              >
-                <X className="h-5 w-5" />
-                <span className="sr-only">Close sidebar</span>
-              </Button>
-            </div>
-            <Sidebar user={user} onNavigate={() => setSidebarOpen(false)} />
-          </aside>
-        </>
-      )}
+      <>
+        {/* Backdrop */}
+        <div
+          className={cn(
+            'fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 md:hidden',
+            sidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+          )}
+          onClick={() => setSidebarOpen(false)}
+        />
+
+        {/* Sliding Sidebar */}
+        <aside
+          className={cn(
+            'fixed inset-y-0 left-0 z-50 w-72 transform bg-sidebar border-r border-sidebar-border shadow-2xl transition-transform duration-300 ease-in-out md:hidden',
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          )}
+        >
+          <div className="absolute right-4 top-4 z-50">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-sidebar-foreground/70 hover:text-sidebar-foreground"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <X className="h-5 w-5" />
+              <span className="sr-only">Close sidebar</span>
+            </Button>
+          </div>
+          <Sidebar user={user} onNavigate={() => setSidebarOpen(false)} />
+        </aside>
+      </>
 
       {/* Main Content */}
       <div className="flex flex-1 flex-col overflow-hidden relative">

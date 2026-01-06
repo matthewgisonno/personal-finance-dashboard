@@ -1,6 +1,6 @@
 'use client';
 
-import { Pie, PieChart, Cell, Legend } from 'recharts';
+import { Pie, PieChart, Cell } from 'recharts';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { ChartContainer, ChartTooltip } from '@/components/ui/Chart';
@@ -8,13 +8,6 @@ import { useMobile } from '@/lib/hooks/useMobile';
 import { categoryIconMap, formatCurrency, formatLongDate, formatPercentage } from '@/lib/utils';
 
 import type { ExpensesByCategoryChartDataType } from './types';
-
-interface LegendPayloadItem {
-  value: string;
-  id?: string;
-  type?: string;
-  color?: string;
-}
 
 interface ExpensesByCategoryChartProps {
   data: ExpensesByCategoryChartDataType[];
@@ -52,10 +45,10 @@ export function ExpensesByCategoryChart({ data, dateRange }: ExpensesByCategoryC
 
         <CardDescription>Total expenses: {formatCurrency(total)}</CardDescription>
       </CardHeader>
-      <CardContent className="flex justify-center items-center">
+      <CardContent className="flex flex-col justify-center items-center">
         <ChartContainer
           config={{ ...chartConfig, amount: { label: 'Amount' } }}
-          className="aspect-auto h-[300px] w-full sm:h-[400px]"
+          className="mx-auto aspect-square min-h-100 max-h-125 w-full pb-0"
         >
           <PieChart>
             <Pie
@@ -64,9 +57,10 @@ export function ExpensesByCategoryChart({ data, dateRange }: ExpensesByCategoryC
               nameKey="category"
               cx="50%"
               cy="50%"
-              outerRadius={isMobile ? 50 : '60%'}
-              innerRadius={isMobile ? 20 : 30}
-              label={({ category, percent }) => `${category} ${formatPercentage(percent)}`}
+              outerRadius={isMobile ? '80%' : '60%'}
+              innerRadius={isMobile ? '50%' : '30%'}
+              label={isMobile ? undefined : ({ category, percent }) => `${category} ${formatPercentage(percent)}`}
+              labelLine={!isMobile}
             >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -93,45 +87,27 @@ export function ExpensesByCategoryChart({ data, dateRange }: ExpensesByCategoryC
                 return null;
               }}
             />
-
-            <Legend
-              verticalAlign="bottom"
-              content={({ payload }) => {
-                if (!payload) return null;
-
-                return (
-                  <div className="flex flex-wrap justify-center gap-4 pt-4">
-                    {/* O(c^2) (c iterations * O(c) lookup) */}
-                    {payload.map((entry, index) => {
-                      // Cast to unknown first to avoid TS issues with implicit any if types are not perfect
-                      const itemPayload = entry as unknown as LegendPayloadItem;
-                      const item = data.find(d => d.category === itemPayload.value);
-                      if (!item) return null;
-
-                      const IconComponent = item.icon ? categoryIconMap[item.icon] : null;
-
-                      return (
-                        <div key={`legend-${index}`} className="flex items-center gap-2">
-                          {IconComponent ? (
-                            <IconComponent className="h-4 w-4" style={{ color: item.fill }} />
-                          ) : (
-                            <span
-                              className="rounded-full w-3 h-3 inline-block"
-                              style={{ backgroundColor: item.fill }}
-                            ></span>
-                          )}
-                          <span className="text-sm font-medium" style={{ color: item.fill }}>
-                            {item.category}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              }}
-            />
           </PieChart>
         </ChartContainer>
+
+        <div className="flex flex-wrap justify-center gap-4 pt-4">
+          {data.map((item, index) => {
+            const IconComponent = item.icon ? categoryIconMap[item.icon] : null;
+
+            return (
+              <div key={`legend-${index}`} className="flex items-center gap-2">
+                {IconComponent ? (
+                  <IconComponent className="h-4 w-4" style={{ color: item.fill }} />
+                ) : (
+                  <span className="rounded-full w-3 h-3 inline-block" style={{ backgroundColor: item.fill }}></span>
+                )}
+                <span className="text-sm font-medium" style={{ color: item.fill }}>
+                  {item.category} ({formatPercentage(item.amount / total)})
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </CardContent>
     </Card>
   );

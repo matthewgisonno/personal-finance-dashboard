@@ -1,8 +1,8 @@
 import { FileText } from 'lucide-react';
 import Link from 'next/link';
 
-import { Button } from '../ui/Button';
-import { Card, CardContent } from '../ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent } from '@/components/ui/Card';
 
 export function EmptyState() {
   return (

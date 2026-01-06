@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { cn } from '@/lib/utils/classNames';
+import { cn } from '@/lib/utils';
 
 const navigation = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },

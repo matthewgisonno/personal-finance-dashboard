@@ -3,13 +3,12 @@
 import { Sparkles, TrendingDown, AlertTriangle, Lightbulb, Loader2, History } from 'lucide-react';
 import { useState, useTransition, useEffect } from 'react';
 
+import { EmptyState } from '@/components/common';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { generateInsightsAction, getInsightHistory } from '@/lib/actions';
 import { formatDateTime, formatFullDateTime } from '@/lib/utils';
-
-import { EmptyState } from '../common/EmptyState';
 
 import type { InsightDataType } from '@/lib/actions/types';
 

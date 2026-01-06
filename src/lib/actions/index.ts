@@ -6,4 +6,5 @@ export * from './getInsights';
 export * from './getMonthlyExpenseData';
 export * from './getTransactions';
 export * from './getUser';
+export * from './hasTransactions';
 export * from './updateTransactionCategory';

@@ -12,22 +12,14 @@ import {
   RowSelectionState
 } from '@tanstack/react-table';
 import { useVirtualizer, VirtualItem, Virtualizer } from '@tanstack/react-virtual';
-import { CircleArrowDown, CircleArrowUp, Database, Minus, MoreHorizontal, Plus, Sparkles, User, X } from 'lucide-react';
+import { CircleArrowDown, CircleArrowUp, Database, MoreHorizontal, Sparkles, User, X } from 'lucide-react';
 import { useMemo, useRef, useState, useEffect } from 'react';
 
+import { DebouncedInput, EmptyState, MobileCollapsibleCard } from '@/components/common';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Checkbox } from '@/components/ui/Checkbox';
-import { Input } from '@/components/ui/Input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
-import { bulkUpdateTransactionCategory } from '@/lib/actions/bulkUpdateTransactionCategory';
-import { updateTransactionCategory } from '@/lib/actions/updateTransactionCategory';
-import { useMobile } from '@/lib/hooks';
-import { cn, categoryIconMap, formatCurrency, formatDate, formatNumber } from '@/lib/utils';
-
-import { EmptyState } from '../common/EmptyState';
-import { Badge } from '../ui/Badge';
-import { Button } from '../ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/Collapsible';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,8 +27,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger
-} from '../ui/DropdownMenu';
-import { Field, FieldGroup, FieldLabel, FieldSet } from '../ui/Field';
+} from '@/components/ui/DropdownMenu';
+import { Field, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/Field';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
+import { bulkUpdateTransactionCategory } from '@/lib/actions/bulkUpdateTransactionCategory';
+import { updateTransactionCategory } from '@/lib/actions/updateTransactionCategory';
+import { cn, categoryIconMap, formatCurrency, formatDate, formatNumber } from '@/lib/utils';
 
 import type { CategoryOptionType, AccountOptionType } from '@/lib/actions/types';
 import type { CategorizedTransactionType } from '@/lib/services/types';
@@ -305,9 +301,6 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
     overscan: 5
   });
 
-  const [isFiltersCollapsed, setIsFiltersCollapsed] = useState<boolean>(false);
-  const isMobile = useMobile();
-
   const handleBulkUpdate = async () => {
     if (!bulkCategory) return;
 
@@ -347,118 +340,107 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
     return <EmptyState />;
   }
 
+  const filteredRowCount = table.getFilteredRowModel().rows.length;
+  const isFilteredEmpty = data.length > 0 && filteredRowCount === 0;
+
   return (
     <>
-      <Card className="gap-2 transition-[padding] duration-300">
-        <Collapsible open={!isMobile ? true : isFiltersCollapsed} onOpenChange={setIsFiltersCollapsed}>
-          <CollapsibleTrigger className="group w-full flex items-center justify-between" tabIndex={-1}>
-            <CardHeader className="w-full">
-              <CardTitle className="w-full text-left">Filter Transactions</CardTitle>
-            </CardHeader>
+      <MobileCollapsibleCard title="Filter Transactions">
+        <div className="flex items-center py-4 gap-4 flex-wrap md:flex-nowrap">
+          <div className="w-full md:max-w-md">
+            <FieldSet>
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="feedback">By Description:</FieldLabel>
 
-            <Plus className="h-4 w-4 mr-4 hidden group-data-[state=closed]:block md:group-data-[state=open]:hidden" />
+                  <DebouncedInput
+                    placeholder="Filter transactions..."
+                    value={(table.getColumn('description')?.getFilterValue() as string) ?? ''}
+                    onChange={value => {
+                      table.getColumn('description')?.setFilterValue(value ? value : undefined);
+                    }}
+                  />
+                </Field>
+              </FieldGroup>
+            </FieldSet>
+          </div>
 
-            <Minus className="h-4 w-4 mr-4 hidden group-data-[state=open]:block md:group-data-[state=open]:hidden" />
-          </CollapsibleTrigger>
+          <div className="w-full md:max-w-md">
+            <FieldSet>
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="category-filter">By Category:</FieldLabel>
 
-          <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-            <CardContent>
-              <div className="flex items-center py-4 gap-4 flex-wrap md:flex-nowrap">
-                <div className="w-full md:max-w-md">
-                  <FieldSet>
-                    <FieldGroup>
-                      <Field>
-                        <FieldLabel htmlFor="feedback">By Description:</FieldLabel>
+                  <Select
+                    value={(table.getColumn('category')?.getFilterValue() as string) ?? 'all'}
+                    onValueChange={value =>
+                      table.getColumn('category')?.setFilterValue(value === 'all' ? undefined : value)
+                    }
+                  >
+                    <SelectTrigger className="h-8 w-50">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
 
-                        <Input
-                          placeholder="Filter transactions..."
-                          value={(table.getColumn('description')?.getFilterValue() as string) ?? ''}
-                          onChange={event => table.getColumn('description')?.setFilterValue(event.target.value)}
-                        />
-                      </Field>
-                    </FieldGroup>
-                  </FieldSet>
-                </div>
+                    <SelectContent>
+                      <SelectItem value="all">All Categories</SelectItem>
 
-                <div className="w-full md:max-w-md">
-                  <FieldSet>
-                    <FieldGroup>
-                      <Field>
-                        <FieldLabel htmlFor="category-filter">By Category:</FieldLabel>
+                      {categories.map(cat => {
+                        const IconComponent = cat.icon ? categoryIconMap[cat.icon] : null;
+                        return (
+                          <SelectItem key={cat.id} value={cat.name}>
+                            <div className="flex items-center gap-2">
+                              {IconComponent ? (
+                                <IconComponent className="h-4 w-4" style={{ color: cat.color }} />
+                              ) : (
+                                <span
+                                  className="rounded-full w-3 h-3 inline-block"
+                                  style={{ backgroundColor: cat.color }}
+                                ></span>
+                              )}
+                              {cat.name}
+                            </div>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </FieldGroup>
+            </FieldSet>
+          </div>
 
-                        <Select
-                          value={(table.getColumn('category')?.getFilterValue() as string) ?? 'all'}
-                          onValueChange={value =>
-                            table.getColumn('category')?.setFilterValue(value === 'all' ? undefined : value)
-                          }
-                        >
-                          <SelectTrigger className="h-8 w-50">
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
+          <div className="w-full md:max-w-md">
+            <FieldSet>
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="account-filter">By Account:</FieldLabel>
 
-                          <SelectContent>
-                            <SelectItem value="all">All Categories</SelectItem>
+                  <Select
+                    value={(table.getColumn('accountName')?.getFilterValue() as string) ?? 'all'}
+                    onValueChange={value =>
+                      table.getColumn('accountName')?.setFilterValue(value === 'all' ? undefined : value)
+                    }
+                  >
+                    <SelectTrigger className="h-8 w-50">
+                      <SelectValue placeholder="Select account" />
+                    </SelectTrigger>
 
-                            {categories.map(cat => {
-                              const IconComponent = cat.icon ? categoryIconMap[cat.icon] : null;
-                              return (
-                                <SelectItem key={cat.id} value={cat.name}>
-                                  <div className="flex items-center gap-2">
-                                    {IconComponent ? (
-                                      <IconComponent className="h-4 w-4" style={{ color: cat.color }} />
-                                    ) : (
-                                      <span
-                                        className="rounded-full w-3 h-3 inline-block"
-                                        style={{ backgroundColor: cat.color }}
-                                      ></span>
-                                    )}
-                                    {cat.name}
-                                  </div>
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
-                      </Field>
-                    </FieldGroup>
-                  </FieldSet>
-                </div>
+                    <SelectContent>
+                      <SelectItem value="all">All Accounts</SelectItem>
 
-                <div className="w-full md:max-w-md">
-                  <FieldSet>
-                    <FieldGroup>
-                      <Field>
-                        <FieldLabel htmlFor="account-filter">By Account:</FieldLabel>
-
-                        <Select
-                          value={(table.getColumn('accountName')?.getFilterValue() as string) ?? 'all'}
-                          onValueChange={value =>
-                            table.getColumn('accountName')?.setFilterValue(value === 'all' ? undefined : value)
-                          }
-                        >
-                          <SelectTrigger className="h-8 w-50">
-                            <SelectValue placeholder="Select account" />
-                          </SelectTrigger>
-
-                          <SelectContent>
-                            <SelectItem value="all">All Accounts</SelectItem>
-
-                            {accounts.map(account => (
-                              <SelectItem key={account.id} value={account.name}>
-                                {account.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </Field>
-                    </FieldGroup>
-                  </FieldSet>
-                </div>
-              </div>
-            </CardContent>
-          </CollapsibleContent>
-        </Collapsible>
-      </Card>
+                      {accounts.map(account => (
+                        <SelectItem key={account.id} value={account.name}>
+                          {account.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </FieldGroup>
+            </FieldSet>
+          </div>
+        </div>
+      </MobileCollapsibleCard>
 
       {Object.keys(rowSelection).length > 0 && (
         <Card className="gap-0">
@@ -526,55 +508,77 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
       )}
 
       <div className="text-sm text-muted-foreground">
-        Showing <strong>{formatNumber(table.getFilteredRowModel().rows.length)}</strong> of{' '}
-        <strong>{formatNumber(data.length)}</strong> transactions
+        Showing <strong>{formatNumber(filteredRowCount)}</strong> of <strong>{formatNumber(data.length)}</strong>{' '}
+        transactions
       </div>
 
-      <div className="h-150 overflow-auto relative rounded-md border border-border" ref={tableContainerRef}>
-        <table className="grid w-full">
-          <thead className="grid sticky top-0 z-10 bg-card border-b border-border">
-            {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id} className="flex w-full">
-                {headerGroup.headers.map(header => {
-                  return (
-                    <th
-                      key={header.id}
-                      className={cn('flex px-2 py-2 font-semibold justify-start text-left', {
-                        'justify-center text-center': header.column.columnDef.meta?.align === 'center'
-                      })}
-                      style={{
-                        width: header.getSize()
-                      }}
-                    >
-                      <div
-                        {...{
-                          className: header.column.getCanSort()
-                            ? 'cursor-pointer select-none flex items-center gap-2'
-                            : 'flex items-center ',
-                          onClick: header.column.getToggleSortingHandler()
+      {isFilteredEmpty ? (
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-10 text-center">
+            <h3 className="text-lg font-semibold">No Matching Transactions</h3>
+            <p className="text-muted-foreground mb-6 max-w-sm">
+              No transactions match your current filters. Try adjusting them or clear all filters to see everything.
+            </p>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setColumnFilters([]);
+                setRowSelection({});
+                setBulkCategory('');
+              }}
+              className="cursor-pointer"
+            >
+              Clear Filters
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="h-150 overflow-auto relative rounded-md border border-border" ref={tableContainerRef}>
+          <table className="grid w-full">
+            <thead className="grid sticky top-0 z-10 bg-card border-b border-border">
+              {table.getHeaderGroups().map(headerGroup => (
+                <tr key={headerGroup.id} className="flex w-full">
+                  {headerGroup.headers.map(header => {
+                    return (
+                      <th
+                        key={header.id}
+                        className={cn('flex px-2 py-2 font-semibold justify-start text-left', {
+                          'justify-center text-center': header.column.columnDef.meta?.align === 'center'
+                        })}
+                        style={{
+                          width: header.getSize()
                         }}
                       >
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                        {{
-                          asc: <CircleArrowUp className="h-4 w-4" />,
-                          desc: <CircleArrowDown className="h-4 w-4" />
-                        }[header.column.getIsSorted() as string] ?? null}
-                      </div>
-                    </th>
-                  );
-                })}
-              </tr>
-            ))}
-          </thead>
-          <tbody className="grid relative" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
-            {/* O(v) where v = visible items + overscan (constant relative to n) */}
-            {rowVirtualizer.getVirtualItems().map(virtualRow => {
-              const row = rows[virtualRow.index] as Row<CategorizedTransactionType>;
-              return <TableBodyRow key={row.id} row={row} virtualRow={virtualRow} rowVirtualizer={rowVirtualizer} />;
-            })}
-          </tbody>
-        </table>
-      </div>
+                        <div
+                          {...{
+                            className: header.column.getCanSort()
+                              ? 'cursor-pointer select-none flex items-center gap-2'
+                              : 'flex items-center ',
+                            onClick: header.column.getToggleSortingHandler()
+                          }}
+                        >
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {{
+                            asc: <CircleArrowUp className="h-4 w-4" />,
+                            desc: <CircleArrowDown className="h-4 w-4" />
+                          }[header.column.getIsSorted() as string] ?? null}
+                        </div>
+                      </th>
+                    );
+                  })}
+                </tr>
+              ))}
+            </thead>
+            <tbody className="grid relative" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
+              {/* O(v) where v = visible items + overscan (constant relative to n) */}
+              {rowVirtualizer.getVirtualItems().map(virtualRow => {
+                const row = rows[virtualRow.index] as Row<CategorizedTransactionType>;
+                return <TableBodyRow key={row.id} row={row} virtualRow={virtualRow} rowVirtualizer={rowVirtualizer} />;
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </>
   );
 }
