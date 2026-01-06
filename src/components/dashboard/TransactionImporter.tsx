@@ -1,10 +1,11 @@
 'use client';
 
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, UploadCloud } from 'lucide-react';
 import Papa from 'papaparse';
 import { useState } from 'react';
 
 import { useTransactionProcessing } from '@/context/TransactionProcessingContext';
+import { cn } from '@/lib/utils';
 
 import { TransactionImporterDisplay } from './TransactionImporterDisplay';
 
@@ -21,17 +22,14 @@ interface TransactionImporterProps {
 
 export function TransactionImporter({ accounts }: TransactionImporterProps) {
   const { transactions, checkPending } = useTransactionProcessing();
-  const pendingTransactions = transactions.filter(t => t.categoryStatus === 'pending');
   const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(accounts[0]?.id || undefined);
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadStatus, setUploadStatus] = useState<string>('');
+  const [isDragging, setIsDragging] = useState<boolean>(false);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) {
-      return;
-    }
+  const pendingTransactions = transactions.filter(t => t.categoryStatus === 'pending');
 
+  const processFile = (file: File) => {
     setUploading(true);
     setUploadStatus('Parsing CSV...');
 
@@ -73,6 +71,35 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
     });
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file && (file.type === 'text/csv' || file.name.endsWith('.csv'))) {
+      processFile(file);
+    } else if (file) {
+      alert('Please upload a CSV file.');
+    }
+  };
+
   const processTransactions = async (rawData: IngestInputType['transactions']) => {
     setUploadStatus('Starting upload...');
 
@@ -86,7 +113,9 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
         const currentBatchNum = Math.floor(i / BATCH_SIZE) + 1;
         const totalBatches = Math.ceil(total / BATCH_SIZE);
 
-        setUploadStatus(`Uploading and securely saving your transactions (${currentBatchNum} of ${totalBatches})...`);
+        setUploadStatus(
+          `Uploading and securely saving your transactions (Batch ${currentBatchNum} of ${totalBatches})...`
+        );
 
         const res = await fetch('/api/ingest', {
           method: 'POST',
@@ -111,7 +140,17 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
 
   return (
     <>
-      <div className="border-2 border-dashed border-border rounded-lg p-10 text-center bg-muted/50">
+      <div
+        className={cn(
+          'border-2 border-dashed rounded-lg p-10 text-center transition-colors duration-200 border-border bg-muted/50',
+          {
+            'border-primary bg-primary/10': isDragging
+          }
+        )}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         <h2 className="text-xl font-bold mb-2 text-foreground">Import Transactions</h2>
 
         {/* ACCOUNT SELECTOR */}
@@ -122,7 +161,7 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
             value={selectedAccountId}
             onChange={e => setSelectedAccountId(e.target.value)}
             disabled={uploading}
-            className="block w-full rounded-md border-input bg-background text-foreground shadow-sm focus:border-ring focus:ring-ring sm:text-sm p-2 border disabled:opacity-50"
+            className="block w-full rounded-md border-input bg-white text-foreground shadow-sm focus:border-ring focus:ring-ring sm:text-sm p-2 border disabled:opacity-50"
           >
             {accounts.map(acc => (
               <option key={acc.id} value={acc.id}>
@@ -134,6 +173,9 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
 
         {/* INPUT STATE */}
         <div className="space-y-4">
+          <div className="flex justify-center">
+            <UploadCloud className="h-10 w-10 text-muted-foreground mb-2" />
+          </div>
           <p className="text-sm text-muted-foreground">Upload a CSV with columns: Date, Description, Amount</p>
 
           <input

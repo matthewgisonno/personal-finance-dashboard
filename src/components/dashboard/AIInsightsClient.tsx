@@ -80,7 +80,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
         <div className="flex items-center gap-2">
           {history.length > 0 && (
             <Select onValueChange={handleHistorySelect} value={insights?.id}>
-              <SelectTrigger className="w-57">
+              <SelectTrigger className="w-57 bg-white">
                 <History className="mr-2 h-4 w-4" />
 
                 <SelectValue placeholder="History" />
