@@ -4,9 +4,9 @@ import { desc, eq } from 'drizzle-orm';
 
 import { db, transactions, categories, accounts } from '@/lib/db';
 
-import type { CategorizedTransaction } from '@/lib/services/types';
+import type { CategorizedTransactionType } from '@/lib/services/types';
 
-export async function getTransactions(): Promise<CategorizedTransaction[]> {
+export async function getTransactions(): Promise<CategorizedTransactionType[]> {
   // MOCK: Get the user
   const user = await db.query.users.findFirst();
   if (!user) {
@@ -35,5 +35,5 @@ export async function getTransactions(): Promise<CategorizedTransaction[]> {
     .orderBy(desc(transactions.date));
 
   // Ensure strict type compatibility
-  return data as unknown as CategorizedTransaction[];
+  return data as unknown as CategorizedTransactionType[];
 }

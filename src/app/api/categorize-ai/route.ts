@@ -5,8 +5,10 @@ import { z } from 'zod';
 
 import { DEFAULT_CATEGORIES } from '@/lib/constants';
 import { db, transactions } from '@/lib/db';
-import { categorizeAiInputSchema, categorizeAiResponseSchema, type CategorizeAiInputType } from '@/lib/schemas';
+import { categorizeAiInputSchema, categorizeAiResponseSchema } from '@/lib/schemas';
 import { getCategoryId } from '@/lib/services';
+
+import type { CategorizeAiInputType } from '@/lib/schemas/types';
 
 export const maxDuration = 60;
 

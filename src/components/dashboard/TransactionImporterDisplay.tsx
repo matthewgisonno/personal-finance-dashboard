@@ -12,10 +12,10 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState, useLayou
 
 import { cn, formatCurrency, formatDate } from '@/lib/utils';
 
-import type { CategorizedTransaction } from '@/lib/services/types';
+import type { CategorizedTransactionType } from '@/lib/services/types';
 
 interface TransactionImporterDisplayProps {
-  data: CategorizedTransaction[];
+  data: CategorizedTransactionType[];
 }
 
 // @tanstack/react-virtual's hook uses react-dom.flushSync for "sync" updates.
@@ -77,10 +77,10 @@ export function TransactionImporterDisplay({ data }: TransactionImporterDisplayP
   // While background processing is removing rows, avoid applying count changes mid-scroll
   // (react-virtual uses internal flushSync paths to keep scroll stable; rapid count changes while
   // scrolling can trigger React warnings).
-  const [renderData, setRenderData] = useState<CategorizedTransaction[]>(data);
+  const [renderData, setRenderData] = useState<CategorizedTransactionType[]>(data);
   const isScrollingRef = useRef(false);
   const scrollEndTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const queuedDataRef = useRef<CategorizedTransaction[] | null>(null);
+  const queuedDataRef = useRef<CategorizedTransactionType[] | null>(null);
 
   useEffect(() => {
     return () => {
@@ -98,7 +98,7 @@ export function TransactionImporterDisplay({ data }: TransactionImporterDisplayP
     setRenderData(data);
   }, [data]);
 
-  const columns = useMemo<ColumnDef<CategorizedTransaction>[]>(
+  const columns = useMemo<ColumnDef<CategorizedTransactionType>[]>(
     () => [
       {
         accessorKey: 'date',
@@ -218,7 +218,7 @@ export function TransactionImporterDisplay({ data }: TransactionImporterDisplayP
           </thead>
           <tbody className="grid relative" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
             {rowVirtualizer.getVirtualItems().map(virtualRow => {
-              const row = rows[virtualRow.index] as Row<CategorizedTransaction>;
+              const row = rows[virtualRow.index] as Row<CategorizedTransactionType>;
               return (
                 <tr
                   key={row.id}

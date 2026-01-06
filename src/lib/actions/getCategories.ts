@@ -4,7 +4,7 @@ import { asc, eq } from 'drizzle-orm';
 
 import { db, categories } from '@/lib/db';
 
-import type { CategoryOption } from './types';
+import type { CategoryOptionType } from './types';
 
 export enum CategoryType {
   Expense = 'expense',
@@ -12,7 +12,7 @@ export enum CategoryType {
   All = 'all'
 }
 
-export async function getCategories(type?: CategoryType): Promise<CategoryOption[]> {
+export async function getCategories(type?: CategoryType): Promise<CategoryOptionType[]> {
   let query = db
     .select({
       id: categories.id,

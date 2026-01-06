@@ -7,7 +7,7 @@ import { ChartContainer, ChartTooltip } from '@/components/ui/Chart';
 import { useMobile } from '@/lib/hooks/useMobile';
 import { categoryIconMap, formatCurrency, formatLongDate, formatPercentage } from '@/lib/utils';
 
-import type { ExpensesByCategoryChartData } from './types';
+import type { ExpensesByCategoryChartDataType } from './types';
 
 interface LegendPayloadItem {
   value: string;
@@ -17,7 +17,7 @@ interface LegendPayloadItem {
 }
 
 interface ExpensesByCategoryChartProps {
-  data: ExpensesByCategoryChartData[];
+  data: ExpensesByCategoryChartDataType[];
   dateRange: {
     from: Date;
     to: Date;

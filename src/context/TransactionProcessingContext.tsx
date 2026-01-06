@@ -4,10 +4,10 @@ import React, { createContext, useContext, useState, useEffect, useRef, useCallb
 
 import { formatNumber } from '@/lib/utils';
 
-import type { CategorizedTransaction } from '@/lib/services/types';
+import type { CategorizedTransactionType } from '@/lib/services/types';
 
 interface TransactionProcessingContextType {
-  transactions: CategorizedTransaction[];
+  transactions: CategorizedTransactionType[];
   isProcessing: boolean;
   progress: string;
   progressValue: number;
@@ -20,7 +20,7 @@ interface TransactionProcessingContextType {
 const TransactionProcessingContext = createContext<TransactionProcessingContextType | undefined>(undefined);
 
 export function TransactionProcessingProvider({ children }: { children: React.ReactNode }) {
-  const [transactions, setTransactions] = useState<CategorizedTransaction[]>([]);
+  const [transactions, setTransactions] = useState<CategorizedTransactionType[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState('');
 
@@ -40,7 +40,7 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
   // O(n)
   const pendingCount = transactions.filter(t => t.categoryStatus === 'pending').length;
 
-  const runBatch = async (batch: CategorizedTransaction[], retryCount = 0) => {
+  const runBatch = async (batch: CategorizedTransactionType[], retryCount = 0) => {
     try {
       const res = await fetch('/api/categorize-ai', {
         method: 'POST',
@@ -64,7 +64,7 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
               categoryConfidence: cat.n.toString(),
               categorySource: 'ai',
               categoryStatus: 'completed'
-            } as CategorizedTransaction;
+            } as CategorizedTransactionType;
           }
         });
         return next;
@@ -89,7 +89,7 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
               categoryConfidence: '0',
               categorySource: 'error',
               categoryStatus: 'completed'
-            } as CategorizedTransaction;
+            } as CategorizedTransactionType;
           }
         });
         return next;
@@ -142,7 +142,7 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
     try {
       const res = await fetch('/api/transactions');
       const { data } = await res.json();
-      const typedData = data as CategorizedTransaction[];
+      const typedData = data as CategorizedTransactionType[];
 
       setTransactions(typedData);
     } catch (err) {

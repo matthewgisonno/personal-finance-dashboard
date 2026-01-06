@@ -5,9 +5,10 @@ import Papa from 'papaparse';
 import { useState } from 'react';
 
 import { useTransactionProcessing } from '@/context/TransactionProcessingContext';
-import { IngestInput } from '@/lib/schemas';
 
 import { TransactionImporterDisplay } from './TransactionImporterDisplay';
+
+import type { IngestInputType } from '@/lib/schemas/types';
 
 interface Account {
   id: string;
@@ -50,9 +51,9 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
           return null;
         };
 
-        // Map the rows to the IngestInput['transactions'] type
+        // Map the rows to the IngestInputType['transactions'] type
         // O(n) where n = number of rows in the CSV
-        const rawData: IngestInput['transactions'] = results.data.map((row, index) => {
+        const rawData: IngestInputType['transactions'] = results.data.map((row, index) => {
           const typedRow = row as Record<string, string>;
           const desc = findValue(typedRow, ['description', 'desc', 'memo', 'merchant']) || 'Unknown';
           const amountStr = findValue(typedRow, ['amount', 'amt', 'value']) || '0';
@@ -72,7 +73,7 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
     });
   };
 
-  const processTransactions = async (rawData: IngestInput['transactions']) => {
+  const processTransactions = async (rawData: IngestInputType['transactions']) => {
     setUploadStatus('Starting upload...');
 
     const BATCH_SIZE = 2500;

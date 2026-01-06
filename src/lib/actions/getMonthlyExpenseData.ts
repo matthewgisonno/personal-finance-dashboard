@@ -5,15 +5,9 @@ import { eq, sql, and, gte, ne, lte } from 'drizzle-orm';
 
 import { db, transactions, categories, accounts } from '../db';
 
-import type { ReportFilters } from './types';
+import type { MonthlyExpenseDataType, ReportFiltersType } from './types';
 
-export type MonthlyExpenseData = {
-  month: string; // "YYYY-MM"
-  category: string;
-  amount: number;
-};
-
-export async function getMonthlyExpenseData(filters: ReportFilters = {}): Promise<MonthlyExpenseData[]> {
+export async function getMonthlyExpenseData(filters: ReportFiltersType = {}): Promise<MonthlyExpenseDataType[]> {
   // MOCK: Get the user
   const user = await db.query.users.findFirst();
   if (!user) {

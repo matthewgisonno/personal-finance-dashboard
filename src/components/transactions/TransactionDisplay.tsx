@@ -38,17 +38,17 @@ import {
 } from '../ui/DropdownMenu';
 import { Field, FieldGroup, FieldLabel, FieldSet } from '../ui/Field';
 
-import type { CategoryOption, AccountOption } from '@/lib/actions/types';
-import type { CategorizedTransaction } from '@/lib/services/types';
+import type { CategoryOptionType, AccountOptionType } from '@/lib/actions/types';
+import type { CategorizedTransactionType } from '@/lib/services/types';
 
 interface TransactionDisplayProps {
-  inputData: CategorizedTransaction[];
-  categories?: CategoryOption[];
-  accounts?: AccountOption[];
+  inputData: CategorizedTransactionType[];
+  categories?: CategoryOptionType[];
+  accounts?: AccountOptionType[];
 }
 
 export function TransactionDisplay({ inputData, categories = [], accounts = [] }: TransactionDisplayProps) {
-  const [data, setData] = useState<CategorizedTransaction[]>(inputData || []);
+  const [data, setData] = useState<CategorizedTransactionType[]>(inputData || []);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [bulkCategory, setBulkCategory] = useState<string>('');
@@ -60,7 +60,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
     }
   }, [inputData]);
 
-  const columns = useMemo<ColumnDef<CategorizedTransaction>[]>(
+  const columns = useMemo<ColumnDef<CategorizedTransactionType>[]>(
     () => [
       {
         id: 'select',
@@ -569,7 +569,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
           <tbody className="grid relative" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
             {/* O(v) where v = visible items + overscan (constant relative to n) */}
             {rowVirtualizer.getVirtualItems().map(virtualRow => {
-              const row = rows[virtualRow.index] as Row<CategorizedTransaction>;
+              const row = rows[virtualRow.index] as Row<CategorizedTransactionType>;
               return <TableBodyRow key={row.id} row={row} virtualRow={virtualRow} rowVirtualizer={rowVirtualizer} />;
             })}
           </tbody>
@@ -580,7 +580,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
 }
 
 interface TableBodyRowProps {
-  row: Row<CategorizedTransaction>;
+  row: Row<CategorizedTransactionType>;
   virtualRow: VirtualItem;
   rowVirtualizer: Virtualizer<HTMLDivElement, HTMLTableRowElement>;
 }

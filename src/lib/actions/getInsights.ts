@@ -3,43 +3,20 @@
 import { desc, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import OpenAI from 'openai';
-import { z } from 'zod';
 
 import { getExpenseCategoryData } from '@/lib/actions/getExpenseCategoryData';
 import { db, aiInsights } from '@/lib/db';
 import { formatCurrency } from '@/lib/utils';
 
-// Schema for the AI's response
-const insightSchema = z.object({
-  summary: z.string().describe("A brief 1-sentence summary of the user's financial health."),
-  recommendations: z.array(
-    z.object({
-      category: z.string(),
-      tip: z.string().describe('A specific, actionable tip to save money in this category.'),
-      potentialSavings: z.number().describe('Estimated monthly savings if tip is followed.')
-    })
-  ),
-  budgetAlerts: z.array(z.string()).describe('Warnings about categories that seem disproportionately high.')
-});
+import { aiInsightsSchema } from '../schemas';
+
+import type { InsightDataType } from './types';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-export type InsightData = {
-  id: string;
-  generatedAt: Date;
-  summary: string;
-  recommendations: {
-    category: string;
-    tip: string;
-    potentialSavings: number;
-  }[];
-  budgetAlerts: string[];
-  totalSpend: string | null;
-};
-
-export async function getLatestInsight(): Promise<InsightData | null> {
+export async function getLatestInsight(): Promise<InsightDataType | null> {
   // MOCK: Get the user
   const user = await db.query.users.findFirst();
   if (!user) {
@@ -57,12 +34,12 @@ export async function getLatestInsight(): Promise<InsightData | null> {
 
   return {
     ...latestInsight,
-    recommendations: latestInsight.recommendations as InsightData['recommendations'],
+    recommendations: latestInsight.recommendations as InsightDataType['recommendations'],
     budgetAlerts: latestInsight.budgetAlerts as string[]
   };
 }
 
-export async function getInsightHistory(): Promise<InsightData[]> {
+export async function getInsightHistory(): Promise<InsightDataType[]> {
   // MOCK: Get the user
   const user = await db.query.users.findFirst();
   if (!user) {
@@ -77,12 +54,12 @@ export async function getInsightHistory(): Promise<InsightData[]> {
 
   return history.map(item => ({
     ...item,
-    recommendations: item.recommendations as InsightData['recommendations'],
+    recommendations: item.recommendations as InsightDataType['recommendations'],
     budgetAlerts: item.budgetAlerts as string[]
   }));
 }
 
-export async function generateInsightsAction(force: boolean = false): Promise<InsightData | null> {
+export async function generateInsightsAction(force: boolean = false): Promise<InsightDataType | null> {
   // MOCK: Get the user
   const user = await db.query.users.findFirst();
   if (!user) {
@@ -105,7 +82,7 @@ export async function generateInsightsAction(force: boolean = false): Promise<In
     if (msSinceGeneration < sevenDaysInMs) {
       return {
         ...latestInsight,
-        recommendations: latestInsight.recommendations as InsightData['recommendations'],
+        recommendations: latestInsight.recommendations as InsightDataType['recommendations'],
         budgetAlerts: latestInsight.budgetAlerts as string[]
       };
     }
@@ -126,13 +103,13 @@ export async function generateInsightsAction(force: boolean = false): Promise<In
     return null;
   }
 
-  // 3. Anonymize the payload
+  // 3. Anonymize the payload & Minify for token efficiency
   const contextPayload = categoryData.map(item => ({
-    category: item.category,
-    amount: item.amount
+    c: item.category,
+    a: item.amount
   }));
 
-  const totalMonthlySpending = contextPayload.reduce((a, b) => a + b.amount, 0);
+  const totalMonthlySpending = contextPayload.reduce((a, b) => a + b.a, 0);
 
   // 4. Generate Insights
   const completion = await openai.chat.completions.create({
@@ -142,13 +119,13 @@ export async function generateInsightsAction(force: boolean = false): Promise<In
       {
         role: 'system',
         content: `You are an empathetic, practical financial advisor helping the user improve their financial health.
-Return ONLY valid JSON matching this structure:
+Return ONLY valid JSON matching this minified structure:
 {
-  "summary": "string",
-  "recommendations": [
-    { "category": "string", "tip": "string", "potentialSavings": number }
+  "s": "string", // summary
+  "r": [ // recommendations
+    { "c": "string", "t": "string", "p": number } // category, tip, potentialSavings
   ],
-  "budgetAlerts": ["string"]
+  "b": ["string"] // budgetAlerts
 }`
       },
       {
@@ -158,7 +135,7 @@ Return ONLY valid JSON matching this structure:
 
         **Context**:
         - Total Spending (Last 30 Days): ${formatCurrency(totalMonthlySpending)}
-        - Category Breakdown: ${JSON.stringify(contextPayload)}
+        - Category Breakdown (c=category, a=amount): ${JSON.stringify(contextPayload)}
 
         **Limitations**:
         - Rely ONLY on the provided categories; do not hallucinate merchants or transaction details.
@@ -183,7 +160,18 @@ Return ONLY valid JSON matching this structure:
     throw new Error('Empty OpenAI response');
   }
 
-  const object = insightSchema.parse(JSON.parse(content));
+  const minifiedObject = aiInsightsSchema.parse(JSON.parse(content));
+
+  // Expand back to full keys
+  const object = {
+    summary: minifiedObject.s,
+    recommendations: minifiedObject.r.map(r => ({
+      category: r.c,
+      tip: r.t,
+      potentialSavings: r.p
+    })),
+    budgetAlerts: minifiedObject.b
+  };
 
   // 5. Store in DB
   const [savedInsight] = await db
@@ -201,7 +189,7 @@ Return ONLY valid JSON matching this structure:
 
   return {
     ...savedInsight,
-    recommendations: savedInsight.recommendations as InsightData['recommendations'],
+    recommendations: savedInsight.recommendations as InsightDataType['recommendations'],
     budgetAlerts: savedInsight.budgetAlerts as string[]
   };
 }

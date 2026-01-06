@@ -4,10 +4,12 @@ import { eq, sql, and, gte, lte } from 'drizzle-orm';
 
 import { db, transactions, categories, accounts } from '../db';
 
-import type { ReportFilters } from './types';
-import type { ExpensesByCategoryChartData } from '@/components/reports/types';
+import type { ReportFiltersType } from './types';
+import type { ExpensesByCategoryChartDataType } from '@/components/reports/types';
 
-export async function getExpenseCategoryData(filters: ReportFilters = {}): Promise<ExpensesByCategoryChartData[]> {
+export async function getExpenseCategoryData(
+  filters: ReportFiltersType = {}
+): Promise<ExpensesByCategoryChartDataType[]> {
   // MOCK: Get the user
   const user = await db.query.users.findFirst();
   if (!user) {

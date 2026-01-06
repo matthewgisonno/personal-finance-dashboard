@@ -16,10 +16,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useMobile } from '@/lib/hooks';
 import { cn, formatLongDate } from '@/lib/utils';
 
-import type { AccountOption } from '@/lib/actions/types';
+import type { AccountOptionType } from '@/lib/actions/types';
 
 interface ReportFiltersProps {
-  accounts: AccountOption[];
+  accounts: AccountOptionType[];
 }
 
 export function ReportFilters({ accounts }: ReportFiltersProps) {

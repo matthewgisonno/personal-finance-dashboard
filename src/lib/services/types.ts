@@ -1,4 +1,4 @@
-export type CategorizedTransaction = {
+export type CategorizedTransactionType = {
   id: string;
   date: string | Date;
   description: string;

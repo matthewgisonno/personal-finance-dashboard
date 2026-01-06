@@ -1,4 +1,4 @@
-export type ExpensesByCategoryChartData = {
+export type ExpensesByCategoryChartDataType = {
   category: string;
   amount: number;
   fill: string;

@@ -3,8 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { db, transactions, accounts } from '@/lib/db';
-import { type IngestInput, ingestSchema } from '@/lib/schemas';
+import { ingestSchema } from '@/lib/schemas';
 import { getCategoryMap, attemptLocalCategorization } from '@/lib/services';
+
+import type { IngestInputType } from '@/lib/schemas/types';
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,7 +22,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { transactions: rawTx, accountId } = parseResult.data as IngestInput;
+    const { transactions: rawTx, accountId } = parseResult.data as IngestInputType;
 
     if (!accountId) {
       return NextResponse.json({ error: 'Account ID is required' }, { status: 400 });

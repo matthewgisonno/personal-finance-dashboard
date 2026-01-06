@@ -6,19 +6,21 @@ import { useState, useTransition, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
-import { generateInsightsAction, InsightData, getInsightHistory } from '@/lib/actions';
+import { generateInsightsAction, getInsightHistory } from '@/lib/actions';
 import { formatDateTime, formatFullDateTime } from '@/lib/utils';
 
 import { EmptyState } from '../common/EmptyState';
 
+import type { InsightDataType } from '@/lib/actions/types';
+
 interface AIInsightsClientProps {
-  initialInsight: InsightData | null;
-  initialHistory: InsightData[];
+  initialInsight: InsightDataType | null;
+  initialHistory: InsightDataType[];
 }
 
 export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsClientProps) {
-  const [insights, setInsights] = useState<InsightData | null>(initialInsight);
-  const [history, setHistory] = useState<InsightData[]>(initialHistory);
+  const [insights, setInsights] = useState<InsightDataType | null>(initialInsight);
+  const [history, setHistory] = useState<InsightDataType[]>(initialHistory);
   const [isPending, startTransition] = useTransition();
 
   const handleGenerateInsights = (force: boolean) => {
@@ -141,7 +143,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {insights.budgetAlerts.map((alert, i) => (
+                    {insights.budgetAlerts.map((alert: string, i: number) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-orange-700">
                         <span>•</span>
                         {alert}
@@ -168,7 +170,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
               <CardContent className="space-y-4">
                 {/* O(r) where r = recommendations count */}
                 {insights.recommendations &&
-                  insights.recommendations.map((rec, i) => (
+                  insights.recommendations.map((rec: InsightDataType['recommendations'][number], i: number) => (
                     <div key={i} className="flex flex-col space-y-1 p-3 rounded-lg border bg-white shadow-sm">
                       <div className="flex justify-between items-center">
                         <span className="font-semibold text-sm bg-gray-100 px-2 py-0.5 rounded-md text-gray-700">

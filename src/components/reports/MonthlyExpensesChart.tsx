@@ -5,14 +5,13 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
-import { MonthlyExpenseData } from '@/lib/actions/getMonthlyExpenseData';
 import { categoryIconMap, formatCurrency, formatLongDate, formatMonthYear } from '@/lib/utils';
 
-import type { CategoryOption } from '@/lib/actions/types';
+import type { CategoryOptionType, MonthlyExpenseDataType } from '@/lib/actions/types';
 
 interface MonthlyExpensesChartProps {
-  data: MonthlyExpenseData[];
-  categories: CategoryOption[];
+  data: MonthlyExpenseDataType[];
+  categories: CategoryOptionType[];
   dateRange: {
     from: Date;
     to: Date;

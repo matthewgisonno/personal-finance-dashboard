@@ -4,9 +4,9 @@ import { asc, eq } from 'drizzle-orm';
 
 import { db, accounts } from '@/lib/db';
 
-import type { AccountOption } from './types';
+import type { AccountOptionType } from './types';
 
-export async function getAccounts(): Promise<AccountOption[]> {
+export async function getAccounts(): Promise<AccountOptionType[]> {
   // MOCK: Get the user
   const user = await db.query.users.findFirst();
   if (!user) {
