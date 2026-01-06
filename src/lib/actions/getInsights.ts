@@ -1,8 +1,8 @@
 'use server';
 
-import { generateObject } from 'ai';
 import { desc, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import OpenAI from 'openai';
 import { z } from 'zod';
 
 import { getExpenseCategoryData } from '@/lib/actions/getExpenseCategoryData';
@@ -20,6 +20,10 @@ const insightSchema = z.object({
     })
   ),
   budgetAlerts: z.array(z.string()).describe('Warnings about categories that seem disproportionately high.')
+});
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
 });
 
 export type InsightData = {
@@ -131,11 +135,26 @@ export async function generateInsightsAction(force: boolean = false): Promise<In
   const totalMonthlySpending = contextPayload.reduce((a, b) => a + b.amount, 0);
 
   // 4. Generate Insights
-  const { object } = await generateObject({
-    model: 'openai/gpt-4o-mini',
-    schema: insightSchema,
-    prompt: `
-        Analyze this monthly spending distribution using the CLEAR framework:
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    response_format: { type: 'json_object' },
+    messages: [
+      {
+        role: 'system',
+        content: `You are an empathetic, practical financial advisor helping the user improve their financial health.
+Return ONLY valid JSON matching this structure:
+{
+  "summary": "string",
+  "recommendations": [
+    { "category": "string", "tip": "string", "potentialSavings": number }
+  ],
+  "budgetAlerts": ["string"]
+}`
+      },
+      {
+        role: 'user',
+        content: `
+        Analyze this monthly spending distribution:
 
         **Context**:
         - Total Spending (Last 30 Days): ${formatCurrency(totalMonthlySpending)}
@@ -154,11 +173,17 @@ export async function generateInsightsAction(force: boolean = false): Promise<In
         - Generate a concise financial health summary.
         - Create a list of recommendations with estimated monthly savings.
         - Produce budget alerts for concerning patterns.
-
-        **Role**:
-        - You are an empathetic, practical financial advisor helping the user improve their financial health.
       `
+      }
+    ]
   });
+
+  const content = completion.choices[0]?.message?.content;
+  if (!content) {
+    throw new Error('Empty OpenAI response');
+  }
+
+  const object = insightSchema.parse(JSON.parse(content));
 
   // 5. Store in DB
   const [savedInsight] = await db

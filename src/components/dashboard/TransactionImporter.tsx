@@ -85,7 +85,7 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
         const currentBatchNum = Math.floor(i / BATCH_SIZE) + 1;
         const totalBatches = Math.ceil(total / BATCH_SIZE);
 
-        setUploadStatus(`Uploading batch ${currentBatchNum} of ${totalBatches}...`);
+        setUploadStatus(`Uploading and securely saving your transactions (${currentBatchNum} of ${totalBatches})...`);
 
         const res = await fetch('/api/ingest', {
           method: 'POST',
@@ -99,7 +99,7 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
       // Trigger global processing to pick up the new pending items
       await checkPending();
 
-      setUploadStatus('Upload complete! Processing started.');
+      setUploadStatus('Upload complete! Processing with AI started.');
       setUploading(false);
     } catch (err) {
       console.error(err);

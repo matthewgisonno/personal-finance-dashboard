@@ -1,4 +1,4 @@
-import { getLatestInsight, getInsightHistory } from '@/lib/actions/getInsights';
+import { getLatestInsight, getInsightHistory } from '@/lib/actions';
 
 import { AIInsightsClient } from './AIInsightsClient';
 

@@ -141,7 +141,7 @@ export function ReportFilters({ accounts }: ReportFiltersProps) {
                             id="date"
                             variant={'outline'}
                             className={cn(
-                              'w-full justify-start text-left font-normal h-8',
+                              'w-full justify-start text-left font-normal h-8 bg-white',
                               !date && 'text-muted-foreground'
                             )}
                           >

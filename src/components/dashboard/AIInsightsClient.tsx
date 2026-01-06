@@ -6,7 +6,7 @@ import { useState, useTransition, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
-import { generateInsightsAction, InsightData, getInsightHistory } from '@/lib/actions/getInsights';
+import { generateInsightsAction, InsightData, getInsightHistory } from '@/lib/actions';
 import { formatDateTime, formatFullDateTime } from '@/lib/utils';
 
 import { EmptyState } from '../common/EmptyState';
