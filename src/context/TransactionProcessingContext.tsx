@@ -140,7 +140,9 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
 
   const checkPending = useCallback(async () => {
     try {
-      const res = await fetch('/api/transactions');
+      // Only fetch pending items for background categorization/progress.
+      // This prevents progress from counting already-completed historical transactions.
+      const res = await fetch('/api/transactions?status=pending');
       const { data } = await res.json();
       const typedData = data as CategorizedTransactionType[];
 

@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useTransactionProcessing } from '@/context/TransactionProcessingContext';
 import { cn } from '@/lib/utils';
 
-import { TransactionImporterDisplay } from './TransactionImporterDisplay';
+import { TransactionProcessingStats } from './TransactionProcessingStats';
 
 import type { IngestInputType } from '@/lib/schemas/types';
 
@@ -155,7 +155,6 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
       >
         <h2 className="text-xl font-bold mb-2 text-foreground">Import Transactions</h2>
 
-        {/* ACCOUNT SELECTOR */}
         <div className="mb-4 text-left max-w-md mx-auto">
           <FieldSet>
             <FieldGroup>
@@ -184,7 +183,6 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
           </FieldSet>
         </div>
 
-        {/* INPUT STATE */}
         <div className="space-y-4">
           <div className="flex justify-center">
             <UploadCloud className="h-10 w-10 text-muted-foreground mb-2" />
@@ -196,18 +194,19 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
             accept=".csv"
             onChange={handleFileUpload}
             disabled={uploading}
-            className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer disabled:opacity-50"
+            aria-label="Upload CSV file"
+            className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
           />
         </div>
 
-        {/* UPLOAD STATUS */}
+        {/* Upload Status */}
         {uploading && <p className="mt-4 text-sm text-primary animate-pulse">{uploadStatus}</p>}
       </div>
 
-      {/* DATA TABLE - Only show when there are pending transactions */}
-      {pendingTransactions.length > 0 && <TransactionImporterDisplay data={pendingTransactions} />}
+      {/* Processing Stats */}
+      {pendingTransactions.length > 0 && <TransactionProcessingStats transactions={transactions} />}
 
-      {/* SUCCESS MESSAGE - Show when all transactions are categorized */}
+      {/* Success Message */}
       {!uploading && transactions.length > 0 && pendingTransactions.length === 0 && (
         <div className="bg-card shadow rounded-lg p-10 text-center border border-border">
           <div className="flex flex-col items-center justify-center space-y-4">

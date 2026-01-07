@@ -29,7 +29,6 @@ export function AIInsightsSkeleton() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          {/* Summary Card */}
           <Card className="col-span-2 bg-linear-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 border-purple-200 dark:border-purple-900">
             <CardHeader>
               <CardTitle className="text-purple-700 dark:text-purple-300 flex items-center gap-2">
@@ -42,7 +41,6 @@ export function AIInsightsSkeleton() {
             </CardContent>
           </Card>
 
-          {/* Budget Alerts */}
           <Card className="col-span-2 md:col-span-1 border-orange-200 dark:border-orange-900 bg-orange-50 dark:bg-orange-950/10">
             <CardHeader>
               <CardTitle className="text-orange-700 dark:text-orange-400 flex items-center gap-2">
@@ -58,7 +56,6 @@ export function AIInsightsSkeleton() {
             </CardContent>
           </Card>
 
-          {/* Savings Opportunities */}
           <Card className="col-span-2 md:col-span-1">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

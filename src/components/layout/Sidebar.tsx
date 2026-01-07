@@ -31,7 +31,6 @@ export function Sidebar({ onNavigate, user }: AppSidebarProps) {
 
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
-      {/* Logo */}
       <div className="flex items-center px-4 py-6">
         <Link href="/" onClick={onNavigate} className="flex items-center gap-2 px-2">
           <div className="relative h-8 w-32">
@@ -40,7 +39,6 @@ export function Sidebar({ onNavigate, user }: AppSidebarProps) {
         </Link>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-2">
         {navigation.map(item => {
           const isActive = pathname === item.href;
@@ -51,8 +49,9 @@ export function Sidebar({ onNavigate, user }: AppSidebarProps) {
               key={item.label}
               href={item.href}
               onClick={onNavigate}
+              aria-current={isActive ? 'page' : undefined}
               className={cn(
-                'group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                'group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring',
                 isActive
                   ? 'bg-sidebar-accent text-sidebar-accent-foreground'
                   : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
@@ -70,12 +69,14 @@ export function Sidebar({ onNavigate, user }: AppSidebarProps) {
         })}
       </nav>
 
-      {/* Footer */}
       <div className="p-2 mt-auto">
-        <div className="flex items-center gap-3 rounded-xl bg-sidebar-accent p-3 hover:bg-sidebar-accent transition-colors cursor-pointer group">
+        <button
+          className="w-full flex items-center gap-3 rounded-xl bg-sidebar-accent p-3 hover:bg-sidebar-accent transition-colors cursor-pointer group text-left outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+          aria-label="User settings"
+        >
           {user?.avatar ? (
             <div className="relative h-9 w-9 overflow-hidden rounded-full ring-2 ring-sidebar-border group-hover:ring-sidebar-ring/50 transition-all">
-              <Image src={user.avatar} alt={user.name || 'User'} fill sizes="36px" className="object-cover" />
+              <Image src={user.avatar} alt="" fill sizes="36px" className="object-cover" />
             </div>
           ) : (
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground font-semibold">
@@ -87,7 +88,7 @@ export function Sidebar({ onNavigate, user }: AppSidebarProps) {
             <div className="text-xs text-sidebar-foreground/50">{user?.email || 'guest@example.com'}</div>
           </div>
           <Settings className="h-4 w-4 text-sidebar-foreground/40 group-hover:text-sidebar-foreground transition-colors" />
-        </div>
+        </button>
       </div>
     </div>
   );

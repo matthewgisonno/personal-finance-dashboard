@@ -4,7 +4,6 @@ import { Skeleton } from '@/components/ui/Skeleton';
 export function TransactionTableSkeleton() {
   return (
     <>
-      {/* Filter Card Skeleton */}
       <Card className="gap-2 mb-4">
         <div className="flex items-center justify-between p-6">
           <CardHeader className="w-full p-0">
@@ -16,15 +15,12 @@ export function TransactionTableSkeleton() {
         </div>
       </Card>
 
-      {/* Count Skeleton */}
       <div className="mb-4 flex items-center gap-2">
         <Skeleton className="h-4 w-64" />
       </div>
 
-      {/* Table Skeleton */}
       <div className="h-150 overflow-hidden relative rounded-md border border-border">
         <div className="grid w-full">
-          {/* Header */}
           <div className="flex w-full bg-card border-b border-border sticky top-0 z-10">
             <div className="flex px-2 py-2 font-semibold justify-start text-left" style={{ width: 150 }}>
               <Skeleton className="h-4 w-20" />
@@ -49,7 +45,6 @@ export function TransactionTableSkeleton() {
             </div>
           </div>
 
-          {/* Body Rows */}
           {Array.from({ length: 15 }).map((_, i) => (
             <div
               key={i}

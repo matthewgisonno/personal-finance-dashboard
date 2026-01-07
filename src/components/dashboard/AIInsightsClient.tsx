@@ -111,6 +111,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
       {/* Empty State */}
       {!insights && <EmptyState />}
 
+      {/* Insights */}
       {insights && (
         <>
           <div className="flex items-center justify-end text-sm text-muted-foreground">
@@ -118,7 +119,6 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Summary Card */}
             <Card className="col-span-2 border-blue-100">
               <CardHeader>
                 <CardTitle className="text-blue-700 flex items-center gap-2">
@@ -131,7 +131,6 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
               </CardContent>
             </Card>
 
-            {/* Budget Alerts */}
             {insights.budgetAlerts && insights.budgetAlerts.length > 0 && (
               <Card className="col-span-2 md:col-span-1 border-orange-200 bg-orange-50">
                 <CardHeader>
@@ -153,7 +152,6 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
               </Card>
             )}
 
-            {/* Savings Opportunities */}
             <Card
               className={
                 insights.budgetAlerts && insights.budgetAlerts.length > 0 ? 'col-span-2 md:col-span-1' : 'col-span-2'

@@ -39,10 +39,9 @@ export function MobileCollapsibleCard({
 
   return (
     <Card className={cn('gap-2 transition-[padding] duration-300', className)}>
-      {/* Mobile: Radix collapsible + height animation */}
       <div className="md:hidden">
         <Collapsible defaultOpen={defaultMobileOpen}>
-          <CollapsibleTrigger className="group w-full flex items-center justify-between cursor-pointer" tabIndex={-1}>
+          <CollapsibleTrigger className="group w-full flex items-center justify-between cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md p-1">
             {header}
             <Plus className="h-4 w-4 mr-4 hidden group-data-[state=closed]:block" />
             <Minus className="h-4 w-4 mr-4 hidden group-data-[state=open]:block" />
@@ -54,7 +53,6 @@ export function MobileCollapsibleCard({
         </Collapsible>
       </div>
 
-      {/* Desktop: always visible, no collapsible logic */}
       <div className="hidden md:block">
         {header}
         {body}

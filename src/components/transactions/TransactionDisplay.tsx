@@ -542,6 +542,13 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
                     return (
                       <th
                         key={header.id}
+                        aria-sort={
+                          header.column.getIsSorted() === 'asc'
+                            ? 'ascending'
+                            : header.column.getIsSorted() === 'desc'
+                              ? 'descending'
+                              : 'none'
+                        }
                         className={cn('flex px-2 py-2 font-semibold justify-start text-left', {
                           'justify-center text-center': header.column.columnDef.meta?.align === 'center'
                         })}
@@ -549,20 +556,23 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
                           width: header.getSize()
                         }}
                       >
-                        <div
-                          {...{
-                            className: header.column.getCanSort()
-                              ? 'cursor-pointer select-none flex items-center gap-2'
-                              : 'flex items-center ',
-                            onClick: header.column.getToggleSortingHandler()
-                          }}
-                        >
-                          {flexRender(header.column.columnDef.header, header.getContext())}
-                          {{
-                            asc: <CircleArrowUp className="h-4 w-4" />,
-                            desc: <CircleArrowDown className="h-4 w-4" />
-                          }[header.column.getIsSorted() as string] ?? null}
-                        </div>
+                        {header.column.getCanSort() ? (
+                          <button
+                            type="button"
+                            onClick={header.column.getToggleSortingHandler()}
+                            className="cursor-pointer select-none flex items-center gap-2 hover:bg-muted/50 rounded px-1 -ml-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          >
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {{
+                              asc: <CircleArrowUp className="h-4 w-4" />,
+                              desc: <CircleArrowDown className="h-4 w-4" />
+                            }[header.column.getIsSorted() as string] ?? null}
+                          </button>
+                        ) : (
+                          <div className="flex items-center">
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                          </div>
+                        )}
                       </th>
                     );
                   })}

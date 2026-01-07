@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
+import { useFocusTrap } from '@/hooks';
 import { cn } from '@/lib/utils';
 
 import { Sidebar } from './Sidebar';
@@ -26,6 +27,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, user }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarRef = useFocusTrap(sidebarOpen, () => setSidebarOpen(false));
 
   return (
     <div className="flex h-screen overflow-hidden bg-background text-foreground">
@@ -35,23 +37,30 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
       </aside>
 
       {/* Sidebar - Mobile Overlay */}
-
-      <>
+      <div className={cn('md:hidden', !sidebarOpen && 'pointer-events-none')} aria-hidden={!sidebarOpen}>
         {/* Backdrop */}
         <div
           className={cn(
-            'fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 md:hidden',
-            sidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+            'fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300',
+            sidebarOpen ? 'opacity-100' : 'opacity-0'
           )}
           onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
         />
 
         {/* Sliding Sidebar */}
         <aside
+          ref={sidebarRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile Navigation"
           className={cn(
-            'fixed inset-y-0 left-0 z-50 w-72 transform bg-sidebar border-r border-sidebar-border shadow-2xl transition-transform duration-300 ease-in-out md:hidden',
+            'fixed inset-y-0 left-0 z-50 w-72 transform bg-sidebar border-r border-sidebar-border shadow-2xl transition-transform duration-300 ease-in-out',
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           )}
+          // Use inert to prevent focus when closed
+          // @ts-expect-error - inert is not yet in @types/react
+          inert={!sidebarOpen ? 'true' : undefined}
         >
           <div className="absolute right-4 top-4 z-50">
             <Button
@@ -59,14 +68,14 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
               size="icon"
               className="text-sidebar-foreground/70 hover:text-sidebar-foreground"
               onClick={() => setSidebarOpen(false)}
+              aria-label="Close sidebar"
             >
               <X className="h-5 w-5" />
-              <span className="sr-only">Close sidebar</span>
             </Button>
           </div>
           <Sidebar user={user} onNavigate={() => setSidebarOpen(false)} />
         </aside>
-      </>
+      </div>
 
       {/* Main Content */}
       <div className="flex flex-1 flex-col overflow-hidden relative">
