@@ -13,6 +13,12 @@ import { TransactionProcessingStats } from './TransactionProcessingStats';
 
 import type { IngestInputType } from '@/lib/schemas/types';
 
+const REQUIRED_COLUMNS = {
+  date: ['date', 'posted date', 'time'],
+  description: ['description', 'desc', 'memo', 'merchant'],
+  amount: ['amount', 'amt', 'value']
+};
+
 interface Account {
   id: string;
   name: string;
@@ -27,6 +33,7 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
   const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(accounts[0]?.id || undefined);
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadStatus, setUploadStatus] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
   const pendingTransactions = transactions.filter(t => t.categoryStatus === 'pending');
@@ -34,12 +41,31 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
   const processFile = (file: File) => {
     setUploading(true);
     setUploadStatus('Parsing CSV...');
+    setError(null);
 
     // Parse the CSV file
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
       complete: async results => {
+        const headers = results.meta.fields || [];
+        const normalizedHeaders = headers.map(h => h.toLowerCase());
+
+        const hasColumn = (aliases: string[]) => aliases.some(alias => normalizedHeaders.includes(alias));
+
+        const missingColumns: string[] = [];
+        if (!hasColumn(REQUIRED_COLUMNS.date)) missingColumns.push('Date');
+        if (!hasColumn(REQUIRED_COLUMNS.description)) missingColumns.push('Description');
+        if (!hasColumn(REQUIRED_COLUMNS.amount)) missingColumns.push('Amount');
+
+        if (missingColumns.length > 0) {
+          setError(
+            `Missing required columns: ${missingColumns.join(', ')}. Please ensure your CSV contains these columns (or their aliases).`
+          );
+          setUploading(false);
+          return;
+        }
+
         // Find the keys in the row
         const findValue = (row: Record<string, string>, keys: string[]) => {
           const rowKeys = Object.keys(row);
@@ -57,9 +83,9 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
         // O(n) where n = number of rows in the CSV
         const rawData: IngestInputType['transactions'] = results.data.map((row, index) => {
           const typedRow = row as Record<string, string>;
-          const desc = findValue(typedRow, ['description', 'desc', 'memo', 'merchant']) || 'Unknown';
-          const amountStr = findValue(typedRow, ['amount', 'amt', 'value']) || '0';
-          const dateStr = findValue(typedRow, ['date', 'posted date', 'time']) || new Date().toISOString();
+          const desc = findValue(typedRow, REQUIRED_COLUMNS.description) || 'Unknown';
+          const amountStr = findValue(typedRow, REQUIRED_COLUMNS.amount) || '0';
+          const dateStr = findValue(typedRow, REQUIRED_COLUMNS.date) || new Date().toISOString();
 
           return {
             id: `temp_${Date.now()}_${index}`,
@@ -203,6 +229,24 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
 
         {/* Upload Status */}
         {uploading && <p className="mt-4 text-sm text-primary animate-pulse">{uploadStatus}</p>}
+
+        {error && (
+          <div className="mt-4 text-sm text-red-600 bg-red-50 p-3 rounded-md text-left border border-red-200">
+            <p className="font-semibold mb-2">{error}</p>
+            <p className="font-medium text-sm mb-1">Accepted Column Names:</p>
+            <ul className="list-disc pl-4 text-sm space-y-0.5">
+              <li>
+                <span className="font-bold">Date:</span> {REQUIRED_COLUMNS.date.join(', ')}
+              </li>
+              <li>
+                <span className="font-bold">Description:</span> {REQUIRED_COLUMNS.description.join(', ')}
+              </li>
+              <li>
+                <span className="font-bold">Amount:</span> {REQUIRED_COLUMNS.amount.join(', ')}
+              </li>
+            </ul>
+          </div>
+        )}
       </div>
 
       {/* Processing Stats */}
