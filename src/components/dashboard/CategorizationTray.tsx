@@ -44,7 +44,9 @@ export function CategorizationTray() {
     }
   }, [completedCount, totalCount, isProcessing, pendingCount, isVisible, router]);
 
-  if (!isVisible && pendingCount === 0) return null;
+  if (!isVisible && pendingCount === 0) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-4 right-4 z-50 w-80 md:w-96 shadow-xl transition-all duration-300">

@@ -20,7 +20,8 @@ export const formatDate = (
   options: Intl.DateTimeFormatOptions = {
     month: 'numeric',
     day: 'numeric',
-    year: 'numeric'
+    year: 'numeric',
+    timeZone: 'America/Los_Angeles'
   }
 ): string => {
   const dateObj = new Date(date);
@@ -31,7 +32,8 @@ export const formatMonthYear = (date: Date | string | number): string => {
   const dateObj = new Date(date);
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
-    year: '2-digit'
+    year: '2-digit',
+    timeZone: 'America/Los_Angeles'
   }).format(dateObj);
 };
 
@@ -40,7 +42,8 @@ export const formatLongDate = (date: Date | string | number): string => {
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',
-    year: 'numeric'
+    year: 'numeric',
+    timeZone: 'America/Los_Angeles'
   }).format(dateObj);
 };
 
@@ -61,7 +64,8 @@ export const formatFullDateTime = (date: Date | string | number): string => {
   const dateStr = new Intl.DateTimeFormat('en-US', {
     month: 'long',
     day: 'numeric',
-    year: 'numeric'
+    year: 'numeric',
+    timeZone: 'America/Los_Angeles'
   }).format(dateObj);
   const timeStr = new Intl.DateTimeFormat('en-US', {
     hour: 'numeric',

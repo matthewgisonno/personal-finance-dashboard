@@ -98,7 +98,9 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
   };
 
   const processBackgroundBatches = async () => {
-    if (processingRef.current) return;
+    if (processingRef.current) {
+      return;
+    }
 
     processingRef.current = true;
     setIsProcessing(true);

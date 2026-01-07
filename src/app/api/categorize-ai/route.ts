@@ -159,7 +159,9 @@ OUTPUT FORMAT:
       .map(cat => {
         const index = Number(cat.i);
         const original = rawTransactions[index];
-        if (!original) return null;
+        if (!original) {
+          return null;
+        }
 
         return {
           ...cat,

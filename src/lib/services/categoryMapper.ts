@@ -4,7 +4,9 @@ import { db, categories } from '../db';
 let categoryCache: Record<string, string> | null = null;
 
 export async function getCategoryMap() {
-  if (categoryCache) return categoryCache;
+  if (categoryCache) {
+    return categoryCache;
+  }
 
   // O(c) where c = number of categories (fetch + reduce)
   // Subsequent calls are O(1) due to caching
@@ -25,7 +27,9 @@ export async function getCategoryId(name: string): Promise<string> {
   const map = await getCategoryMap();
   // Fallback to "Uncategorized" if AI invents a new category
   const id = map[name.toLowerCase()];
-  if (id) return id;
+  if (id) {
+    return id;
+  }
 
   const fallback = map['uncategorized'];
   if (!fallback) {

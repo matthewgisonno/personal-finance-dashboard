@@ -46,7 +46,9 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
           // O(k) where k = number of keys in the row
           for (const k of keys) {
             const match = rowKeys.find(rk => rk.toLowerCase() === k.toLowerCase());
-            if (match) return row[match];
+            if (match) {
+              return row[match];
+            }
           }
           return null;
         };

@@ -41,7 +41,9 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
   useEffect(() => {
     // O(1) check
     const shouldRefresh = () => {
-      if (!initialInsight) return true;
+      if (!initialInsight) {
+        return true;
+      }
       const generatedAt = new Date(initialInsight.generatedAt);
       const now = new Date();
       const msSinceGeneration = now.getTime() - generatedAt.getTime();
@@ -49,9 +51,11 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
       return msSinceGeneration >= sevenDaysInMs;
     };
 
-    if (shouldRefresh()) {
-      handleGenerateInsights(false);
-    }
+    requestAnimationFrame(() => {
+      if (shouldRefresh()) {
+        handleGenerateInsights(false);
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

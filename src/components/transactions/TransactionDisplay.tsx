@@ -302,7 +302,9 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
   });
 
   const handleBulkUpdate = async () => {
-    if (!bulkCategory) return;
+    if (!bulkCategory) {
+      return;
+    }
 
     setIsBulkUpdating(true);
     const selectedIds = Object.keys(rowSelection);

@@ -173,7 +173,9 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
                             const IconComponent = iconName ? categoryIconMap[iconName] : null;
 
                             // Filter out zero values to keep tooltip clean
-                            if (value === 0) return null;
+                            if (value === 0) {
+                              return null;
+                            }
 
                             return (
                               <div key={index} className="flex items-center gap-2 text-sm">
@@ -202,7 +204,9 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
               <Legend
                 wrapperStyle={{ paddingTop: '20px' }}
                 content={({ payload }) => {
-                  if (!payload) return null;
+                  if (!payload) {
+                    return null;
+                  }
 
                   return (
                     <div className="flex flex-wrap justify-center gap-4 pt-4">
