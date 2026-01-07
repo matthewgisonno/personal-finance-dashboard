@@ -1,7 +1,7 @@
 'use client';
 
 import { subYears } from 'date-fns';
-import { CalendarIcon, ChevronDown } from 'lucide-react';
+import { CalendarIcon, ChevronDown, X } from 'lucide-react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { DateRange } from 'react-day-picker';
@@ -82,6 +82,19 @@ export function ReportFilters({ accounts }: ReportFiltersProps) {
 
   const currentAccount = searchParams.get('account') || 'all';
 
+  const isFiltered = currentAccount !== 'all' || searchParams.has('from') || searchParams.has('to');
+
+  const handleClearFilters = () => {
+    const end = new Date();
+    const start = subYears(end, 1);
+    const defaultDate = {
+      from: start,
+      to: end
+    };
+    setDate(defaultDate);
+    router.push(pathname);
+  };
+
   return (
     <MobileCollapsibleCard title="Filter Reports">
       <div className="flex items-center py-4 gap-4 flex-wrap md:flex-nowrap">
@@ -159,6 +172,13 @@ export function ReportFilters({ accounts }: ReportFiltersProps) {
           </FieldSet>
         </div>
       </div>
+
+      {isFiltered && (
+        <Button variant="outline" onClick={handleClearFilters} className="h-8 cursor-pointer w-full md:w-auto">
+          Clear Filters
+          <X className="ml-2 h-4 w-4" />
+        </Button>
+      )}
     </MobileCollapsibleCard>
   );
 }

@@ -440,6 +440,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
             </FieldSet>
           </div>
         </div>
+
         {columnFilters.length > 0 && (
           <Button
             variant="outline"
