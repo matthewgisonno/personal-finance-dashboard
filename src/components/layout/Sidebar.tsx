@@ -85,7 +85,7 @@ export function Sidebar({ onNavigate, user }: AppSidebarProps) {
           )}
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium text-sidebar-foreground">{user?.name || 'Guest User'}</div>
-            <div className="text-xs text-sidebar-foreground/50">{user?.email || 'guest@example.com'}</div>
+            <div className="text-xs text-sidebar-foreground/70">{user?.email || 'guest@example.com'}</div>
           </div>
           <Settings className="h-4 w-4 text-sidebar-foreground/40 group-hover:text-sidebar-foreground transition-colors" />
         </button>
