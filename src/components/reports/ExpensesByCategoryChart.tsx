@@ -102,7 +102,8 @@ export function ExpensesByCategoryChart({ data, dateRange }: ExpensesByCategoryC
                   <span className="rounded-full w-3 h-3 inline-block" style={{ backgroundColor: item.fill }}></span>
                 )}
                 <span className="text-sm font-medium" style={{ color: item.fill }}>
-                  {item.category} ({formatPercentage(item.amount / total)})
+                  {item.category} <span className="inline">{formatCurrency(item.amount)}</span> (
+                  {formatPercentage(item.amount / total)})
                 </span>
               </div>
             );

@@ -18,14 +18,14 @@ export function AIInsightsSkeleton() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Skeleton className="h-10 w-[200px]" />
-          <Skeleton className="h-10 w-[140px]" />
+          <Skeleton className="h-10 w-50" />
+          <Skeleton className="h-10 w-35" />
         </div>
       </div>
 
       <div className="space-y-4">
         <div className="flex items-center justify-end">
-          <Skeleton className="h-4 w-[250px]" />
+          <Skeleton className="h-4 w-62.5" />
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">

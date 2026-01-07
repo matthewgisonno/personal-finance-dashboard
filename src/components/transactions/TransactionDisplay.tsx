@@ -365,7 +365,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
             </FieldSet>
           </div>
 
-          <div className="w-full md:max-w-md">
+          <div className="w-full">
             <FieldSet>
               <FieldGroup>
                 <Field>
@@ -440,6 +440,16 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
             </FieldSet>
           </div>
         </div>
+        {columnFilters.length > 0 && (
+          <Button
+            variant="outline"
+            onClick={() => setColumnFilters([])}
+            className="h-8 cursor-pointer w-full md:w-auto"
+          >
+            Clear Filters
+            <X className="ml-2 h-4 w-4" />
+          </Button>
+        )}
       </MobileCollapsibleCard>
 
       {Object.keys(rowSelection).length > 0 && (

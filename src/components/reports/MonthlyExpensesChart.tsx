@@ -101,7 +101,7 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
             </CardDescription>
           </div>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full md:w-45">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
 
@@ -133,7 +133,7 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
       </CardHeader>
 
       <CardContent>
-        <div className="h-[300px] sm:h-[400px] w-full">
+        <div className="h-75 sm:h-100 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={activeData}

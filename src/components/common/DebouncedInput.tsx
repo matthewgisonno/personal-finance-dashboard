@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Input } from '@/components/ui/Input';
 
@@ -12,6 +12,11 @@ type DebouncedInputProps = {
 
 export function DebouncedInput({ value, onChange, delay = 300, ...props }: DebouncedInputProps) {
   const [internal, setInternal] = useState(value);
+  const onChangeRef = useRef(onChange);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   // keep in sync if parent changes value
   useEffect(() => {
@@ -21,11 +26,11 @@ export function DebouncedInput({ value, onChange, delay = 300, ...props }: Debou
   // debounce emission
   useEffect(() => {
     const id = setTimeout(() => {
-      onChange(internal);
+      onChangeRef.current(internal);
     }, delay);
 
     return () => clearTimeout(id);
-  }, [internal, delay, onChange]);
+  }, [internal, delay]);
 
   return <Input {...props} value={internal} onChange={e => setInternal(e.target.value)} />;
 }

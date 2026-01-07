@@ -55,12 +55,10 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
           aria-modal="true"
           aria-label="Mobile Navigation"
           className={cn(
-            'fixed inset-y-0 left-0 z-50 w-72 transform bg-sidebar border-r border-sidebar-border shadow-2xl transition-transform duration-300 ease-in-out',
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            'fixed inset-y-0 left-0 z-50 w-72 transform bg-sidebar border-r border-sidebar-border shadow-2xl transition-transform duration-300 ease-in-out -translate-x-full',
+            { 'translate-x-0': sidebarOpen }
           )}
-          // Use inert to prevent focus when closed
-          // @ts-expect-error - inert is not yet in @types/react
-          inert={!sidebarOpen ? 'true' : undefined}
+          inert={!sidebarOpen ? true : false}
         >
           <div className="absolute right-4 top-4 z-50">
             <Button

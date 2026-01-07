@@ -48,7 +48,7 @@ export function TransactionTableSkeleton() {
           {Array.from({ length: 15 }).map((_, i) => (
             <div
               key={i}
-              className="flex w-full border-b border-border items-center h-[53px] bg-white hover:bg-muted/50 transition-colors"
+              className="flex w-full border-b border-border items-center h-13.5 bg-white hover:bg-muted/50 transition-colors"
             >
               <div className="p-2" style={{ width: 150 }}>
                 <Skeleton className="h-4 w-24" />

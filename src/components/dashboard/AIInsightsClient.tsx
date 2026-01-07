@@ -76,18 +76,18 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {history.length > 0 && (
             <Select onValueChange={handleHistorySelect} value={insights?.id}>
-              <SelectTrigger className="w-57 bg-white">
+              <SelectTrigger className="w-full md:w-57 bg-white">
                 <History className="mr-2 h-4 w-4" />
 
                 <SelectValue placeholder="History" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="w-full md:w-57" position="popper">
                 {/* O(h) where h = history length (limited to 10) */}
                 {history.map(item => (
-                  <SelectItem key={item.id} value={item.id}>
+                  <SelectItem key={item.id} value={item.id} className="w-full md:w-57">
                     {formatDateTime(item.generatedAt)}
                   </SelectItem>
                 ))}
@@ -95,7 +95,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
             </Select>
           )}
 
-          <Button onClick={() => handleGenerateInsights(true)} disabled={isPending}>
+          <Button onClick={() => handleGenerateInsights(true)} disabled={isPending} className="w-full md:w-auto">
             {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
