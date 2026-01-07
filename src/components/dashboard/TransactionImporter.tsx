@@ -168,8 +168,8 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
                   onValueChange={value => setSelectedAccountId(value)}
                   disabled={uploading}
                 >
-                  <SelectTrigger className="h-8 w-full bg-white">
-                    <SelectValue placeholder="Select account" />
+                  <SelectTrigger className="h-8 w-50 bg-white" aria-label="Select Account">
+                    <SelectValue placeholder="Select Account" />
                   </SelectTrigger>
 
                   <SelectContent>

@@ -148,8 +148,8 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
                 await updateTransactionCategory(transaction.id, value);
               }}
             >
-              <SelectTrigger className="h-8 w-50">
-                <SelectValue placeholder="Select category" />
+              <SelectTrigger className="h-8 w-50" aria-label="Select Category">
+                <SelectValue placeholder="Select Category" />
               </SelectTrigger>
 
               <SelectContent>
@@ -379,8 +379,8 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
                       table.getColumn('category')?.setFilterValue(value === 'all' ? undefined : value)
                     }
                   >
-                    <SelectTrigger className="h-8 w-50" aria-label="Filter by category">
-                      <SelectValue placeholder="Select category" />
+                    <SelectTrigger className="h-8 w-50" aria-label="Filter by Category">
+                      <SelectValue placeholder="Select Category" />
                     </SelectTrigger>
 
                     <SelectContent>
@@ -423,8 +423,8 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
                       table.getColumn('accountName')?.setFilterValue(value === 'all' ? undefined : value)
                     }
                   >
-                    <SelectTrigger className="h-8 w-50" aria-label="Filter by account">
-                      <SelectValue placeholder="Select account" />
+                    <SelectTrigger className="h-8 w-50" aria-label="Filter by Account">
+                      <SelectValue placeholder="Select Account" />
                     </SelectTrigger>
 
                     <SelectContent>

@@ -228,7 +228,7 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
                                 style={{ backgroundColor: color }}
                               ></span>
                             )}
-                            <span className="text-sm font-medium" style={{ color }}>
+                            <span className="text-sm font-medium text-foreground">
                               {catName}
                             </span>
                           </div>
