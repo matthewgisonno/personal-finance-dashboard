@@ -76,7 +76,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
           {history.length > 0 && (
             <Select onValueChange={handleHistorySelect} value={insights?.id}>
               <SelectTrigger className="w-full md:w-57 bg-white" aria-label="Select Insight History">

@@ -51,7 +51,8 @@ export const formatDateTime = (date: Date | string | number): string => {
     day: 'numeric',
     year: 'numeric',
     hour: 'numeric',
-    minute: 'numeric'
+    minute: 'numeric',
+    timeZone: 'America/Los_Angeles'
   }).format(dateObj);
 };
 
@@ -64,7 +65,8 @@ export const formatFullDateTime = (date: Date | string | number): string => {
   }).format(dateObj);
   const timeStr = new Intl.DateTimeFormat('en-US', {
     hour: 'numeric',
-    minute: 'numeric'
+    minute: 'numeric',
+    timeZone: 'America/Los_Angeles'
   }).format(dateObj);
   return `${dateStr} at ${timeStr}`;
 };
