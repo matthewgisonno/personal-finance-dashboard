@@ -245,12 +245,13 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
       },
       {
         id: 'actions',
+        header: 'Actions',
         cell: () => {
           return (
             <div className="flex items-center w-full">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
+                  <Button variant="ghost" className="h-8 w-8 p-0 mx-auto">
                     <span className="sr-only">Open menu</span>
 
                     <MoreHorizontal className="h-4 w-4" />
@@ -267,6 +268,10 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
               </DropdownMenu>
             </div>
           );
+        },
+        size: 100,
+        meta: {
+          align: 'center'
         }
       }
     ],
