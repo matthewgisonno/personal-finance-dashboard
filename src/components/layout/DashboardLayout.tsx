@@ -49,7 +49,7 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
         />
 
         {/* Sliding Sidebar */}
-        <aside
+        <div
           ref={sidebarRef}
           role="dialog"
           aria-modal="true"
@@ -60,19 +60,21 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
           )}
           inert={!sidebarOpen ? true : false}
         >
-          <div className="absolute right-4 top-4 z-50">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-sidebar-foreground/70 hover:text-sidebar-foreground"
-              onClick={() => setSidebarOpen(false)}
-              aria-label="Close sidebar"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-          <Sidebar user={user} onNavigate={() => setSidebarOpen(false)} />
-        </aside>
+          <aside className="h-full">
+            <div className="absolute right-4 top-4 z-50">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-sidebar-foreground/70 hover:text-sidebar-foreground"
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Close sidebar"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            <Sidebar user={user} onNavigate={() => setSidebarOpen(false)} />
+          </aside>
+        </div>
       </div>
 
       {/* Main Content */}

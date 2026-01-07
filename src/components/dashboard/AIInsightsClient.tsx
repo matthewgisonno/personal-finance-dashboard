@@ -79,7 +79,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
         <div className="flex flex-wrap items-center gap-2">
           {history.length > 0 && (
             <Select onValueChange={handleHistorySelect} value={insights?.id}>
-              <SelectTrigger className="w-full md:w-57 bg-white">
+              <SelectTrigger className="w-full md:w-57 bg-white" aria-label="Select Insight History">
                 <History className="mr-2 h-4 w-4" />
 
                 <SelectValue placeholder="History" />
@@ -119,22 +119,22 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <Card className="col-span-2 border-blue-100">
+            <Card className="col-span-2 border-blue-200 bg-blue-50/50">
               <CardHeader>
-                <CardTitle className="text-blue-700 flex items-center gap-2">
+                <CardTitle className="text-blue-800 flex items-center gap-2">
                   <Lightbulb className="h-5 w-5" />
                   Executive Summary
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-lg font-medium text-slate-800">{insights.summary}</p>
+                <p className="text-lg font-medium text-slate-900">{insights.summary}</p>
               </CardContent>
             </Card>
 
             {insights.budgetAlerts && insights.budgetAlerts.length > 0 && (
               <Card className="col-span-2 md:col-span-1 border-orange-200 bg-orange-50">
                 <CardHeader>
-                  <CardTitle className="text-orange-600 flex items-center gap-2">
+                  <CardTitle className="text-orange-800 flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5" />
                     Attention Needed
                   </CardTitle>
@@ -142,8 +142,8 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
                 <CardContent>
                   <ul className="space-y-2">
                     {insights.budgetAlerts.map((alert: string, i: number) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-orange-700">
-                        <span>•</span>
+                      <li key={i} className="flex items-start gap-2 text-sm text-orange-900">
+                        <span className="text-orange-800">•</span>
                         {alert}
                       </li>
                     ))}
@@ -158,11 +158,13 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
               }
             >
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingDown className="h-5 w-5 text-green-600" />
+                <CardTitle className="flex items-center gap-2 text-green-800">
+                  <TrendingDown className="h-5 w-5 text-green-700" />
                   Savings Opportunities
                 </CardTitle>
-                <CardDescription>Actionable tips to reduce your monthly spend</CardDescription>
+                <CardDescription className="text-slate-600">
+                  Actionable tips to reduce your monthly spend
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* O(r) where r = recommendations count */}
@@ -170,12 +172,12 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
                   insights.recommendations.map((rec: InsightDataType['recommendations'][number], i: number) => (
                     <div key={i} className="flex flex-col space-y-1 p-3 rounded-lg border bg-white shadow-sm">
                       <div className="flex justify-between items-center">
-                        <span className="font-semibold text-sm bg-gray-100 px-2 py-0.5 rounded-md text-gray-700">
+                        <span className="font-semibold text-sm bg-gray-100 px-2 py-0.5 rounded-md text-gray-800">
                           {rec.category}
                         </span>
-                        <span className="text-green-600 font-bold text-sm">Save ~${rec.potentialSavings}/mo</span>
+                        <span className="text-green-700 font-bold text-sm">Save ~${rec.potentialSavings}/mo</span>
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">{rec.tip}</p>
+                      <p className="text-sm text-gray-700 mt-1">{rec.tip}</p>
                     </div>
                   ))}
               </CardContent>

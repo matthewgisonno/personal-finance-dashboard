@@ -9,7 +9,7 @@ import { useEffect, useRef } from 'react';
  * - Initial focus setting
  */
 export function useFocusTrap(isActive: boolean, onClose?: () => void) {
-  const containerRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
 
   useEffect(() => {

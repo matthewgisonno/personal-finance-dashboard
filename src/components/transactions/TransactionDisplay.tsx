@@ -377,7 +377,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
                       table.getColumn('category')?.setFilterValue(value === 'all' ? undefined : value)
                     }
                   >
-                    <SelectTrigger className="h-8 w-50">
+                    <SelectTrigger className="h-8 w-50" aria-label="Filter by category">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
 
@@ -421,7 +421,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
                       table.getColumn('accountName')?.setFilterValue(value === 'all' ? undefined : value)
                     }
                   >
-                    <SelectTrigger className="h-8 w-50">
+                    <SelectTrigger className="h-8 w-50" aria-label="Filter by account">
                       <SelectValue placeholder="Select account" />
                     </SelectTrigger>
 
@@ -483,8 +483,8 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
               </label>
 
               <Select value={bulkCategory} onValueChange={setBulkCategory}>
-                <SelectTrigger id="bulk-category" className="w-full">
-                  <SelectValue placeholder="Select category" />
+                <SelectTrigger id="bulk-category" className="w-full" aria-label="Select Bulk Category">
+                  <SelectValue placeholder="Select Category" />
                 </SelectTrigger>
 
                 <SelectContent>

@@ -101,10 +101,9 @@ export function MonthlyExpensesChart({ data, categories, dateRange }: MonthlyExp
             </CardDescription>
           </div>
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-full md:w-45">
-              <SelectValue placeholder="Select category" />
+            <SelectTrigger className="w-full md:w-45" aria-label="Select Category">
+              <SelectValue placeholder="Select Category" />
             </SelectTrigger>
-
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
 

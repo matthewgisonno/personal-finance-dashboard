@@ -105,8 +105,8 @@ export function ReportFilters({ accounts }: ReportFiltersProps) {
                 <FieldLabel htmlFor="account-filter">By Account:</FieldLabel>
 
                 <Select value={currentAccount} onValueChange={handleAccountChange}>
-                  <SelectTrigger className="h-8 w-50">
-                    <SelectValue placeholder="Select account" />
+                  <SelectTrigger className="h-8 w-50" aria-label="Filter by Account">
+                    <SelectValue placeholder="Select Account" />
                   </SelectTrigger>
 
                   <SelectContent>
