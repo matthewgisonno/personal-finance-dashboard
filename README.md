@@ -19,7 +19,7 @@ A modern, AI-powered personal finance tracker built with Next.js (App Router), D
 - **CSV Upload:** Parse and ingest bulk transaction data via `papaparse`.
 - **Hybrid Categorization Engine:**
   - **Layer 1 (Local):** Instant, deterministic keyword matching for common merchants (e.g., Starbucks -> Food & Drink).
-  - **Layer 2 (AI):** Uncategorized transactions are processed by GPT-4o to intelligently assign categories based on context.
+  - **Layer 2 (AI):** Uncategorized transactions are processed by GPT-4o-mini to intelligently assign categories based on context.
 
 ### 2. AI Financial Insights
 

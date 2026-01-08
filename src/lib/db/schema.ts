@@ -54,7 +54,7 @@ export const transactions = pgTable(
       .notNull(),
     categoryStatus: varchar('category_status', { length: 20 }).default('pending').notNull(), // 'pending', 'completed',
 
-    categorySource: varchar('category_source', { length: 20 }), // 'pending', 'local', 'ai', 'manual'
+    categorySource: varchar('category_source', { length: 20 }), // 'pending', 'local', 'ai', 'manual', 'error'
     categoryConfidence: numeric('category_confidence', { precision: 3, scale: 2 }), // 0.00 to 1.00
 
     createdAt: timestamp('created_at').defaultNow().notNull(),

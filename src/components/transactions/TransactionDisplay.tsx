@@ -9,7 +9,8 @@ import {
   useReactTable,
   ColumnFiltersState,
   getFilteredRowModel,
-  RowSelectionState
+  RowSelectionState,
+  Header
 } from '@tanstack/react-table';
 import { useVirtualizer, VirtualItem, Virtualizer } from '@tanstack/react-virtual';
 import { CircleArrowDown, CircleArrowUp, Database, MoreHorizontal, Sparkles, User, X } from 'lucide-react';
@@ -30,6 +31,7 @@ import {
 } from '@/components/ui/DropdownMenu';
 import { Field, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/Field';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
+import { useTransactionProcessing } from '@/context/TransactionProcessingContext';
 import { bulkUpdateTransactionCategory } from '@/lib/actions/bulkUpdateTransactionCategory';
 import { updateTransactionCategory } from '@/lib/actions/updateTransactionCategory';
 import { cn, categoryIconMap, formatCurrency, formatDate, formatNumber } from '@/lib/utils';
@@ -48,12 +50,59 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [bulkCategory, setBulkCategory] = useState<string>('');
-  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const [isBulkUpdating, setIsBulkUpdating] = useState<boolean>(false);
+
+  const { transactions: liveTransactions } = useTransactionProcessing();
+
+  // Sync live updates from context to local state
+  useEffect(() => {
+    if (liveTransactions.length > 0) {
+      // Logic to merge live transactions into local state while handling missing IDs
+      setData(prev => {
+        const updateMap = new Map(liveTransactions.map(t => [t.id, t]));
+        return prev.map(t => {
+          const update = updateMap.get(t.id);
+          if (update) {
+            if (update.category && categories.length > 0) {
+              const matchedCat = categories.find(c => c.name.toLowerCase() === update.category.toLowerCase());
+              if (matchedCat && matchedCat.id !== update.categoryId) {
+                return { ...update, categoryId: matchedCat.id };
+              }
+            }
+            return update;
+          }
+          return t;
+        });
+      });
+    }
+  }, [liveTransactions, categories]);
 
   useEffect(() => {
     if (inputData) {
-      setData(inputData);
+      // Merge live transactions if available to prevent stale data overwriting live progress
+      // O(n) where n = inputData length
+      if (liveTransactions.length > 0) {
+        const updateMap = new Map(liveTransactions.map(t => [t.id, t]));
+        setData(
+          inputData.map(t => {
+            const update = updateMap.get(t.id);
+            if (update) {
+              if (update.category && categories.length > 0) {
+                const matchedCat = categories.find(c => c.name.toLowerCase() === update.category.toLowerCase());
+                if (matchedCat && matchedCat.id !== update.categoryId) {
+                  return { ...update, categoryId: matchedCat.id };
+                }
+              }
+              return update;
+            }
+            return t;
+          })
+        );
+      } else {
+        setData(inputData);
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inputData]);
 
   const columns = useMemo<ColumnDef<CategorizedTransactionType>[]>(
@@ -130,6 +179,9 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
             <Select
               value={transaction.categoryId || ''}
               onValueChange={async value => {
+                // Store previous state for rollback
+                const previousTransaction = { ...transaction };
+
                 // Optimistic update
                 // O(n) where n = total transactions in state
                 setData(prev =>
@@ -145,7 +197,29 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
                       : t
                   )
                 );
-                await updateTransactionCategory(transaction.id, value);
+
+                try {
+                  const result = await updateTransactionCategory(transaction.id, value);
+                  if (!result.success) {
+                    throw new Error(result.error || 'Update failed');
+                  }
+                } catch (error) {
+                  // Rollback on failure
+                  console.error('Failed to update category:', error);
+                  setData(prev =>
+                    prev.map(t =>
+                      t.id === transaction.id
+                        ? {
+                            ...t,
+                            categoryId: previousTransaction.categoryId,
+                            category: previousTransaction.category,
+                            categorySource: previousTransaction.categorySource,
+                            categoryStatus: previousTransaction.categoryStatus
+                          }
+                        : t
+                    )
+                  );
+                }
               }}
             >
               <SelectTrigger className="h-8 w-50" aria-label="Select Category">
@@ -278,7 +352,6 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
     [categories]
   );
 
-  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -315,6 +388,10 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
     const selectedIds = Object.keys(rowSelection);
     const categoryName = categories.find(c => c.id === bulkCategory)?.name;
 
+    // Store previous state for rollback
+    // O(s) where s = selected transactions
+    const previousTransactions = new Map(data.filter(t => rowSelection[t.id]).map(t => [t.id, { ...t }]));
+
     // Optimistic update
     // O(n) where n = total transactions (iterating to apply updates)
     setData(prev =>
@@ -331,15 +408,34 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
       )
     );
 
-    const result = await bulkUpdateTransactionCategory(selectedIds, bulkCategory);
+    try {
+      const result = await bulkUpdateTransactionCategory(selectedIds, bulkCategory);
 
-    setIsBulkUpdating(false);
-
-    if (result.success) {
-      setRowSelection({});
-      setBulkCategory('');
-    } else {
-      console.error('Bulk update failed');
+      if (result.success) {
+        setRowSelection({});
+        setBulkCategory('');
+      } else {
+        throw new Error('Bulk update failed');
+      }
+    } catch (error) {
+      // Rollback on failure
+      console.error('Bulk update failed:', error);
+      setData(prev =>
+        prev.map(t => {
+          const previous = previousTransactions.get(t.id);
+          return previous
+            ? {
+                ...t,
+                categoryId: previous.categoryId,
+                category: previous.category,
+                categorySource: previous.categorySource,
+                categoryStatus: previous.categoryStatus
+              }
+            : t;
+        })
+      );
+    } finally {
+      setIsBulkUpdating(false);
     }
   };
 
@@ -554,46 +650,13 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
         <div className="h-150 overflow-auto relative rounded-md border border-border" ref={tableContainerRef}>
           <table className="grid w-full">
             <thead className="grid sticky top-0 z-10 bg-card border-b border-border">
+              {/* O(h) where h = number of header groups */}
               {table.getHeaderGroups().map(headerGroup => (
                 <tr key={headerGroup.id} className="flex w-full">
-                  {headerGroup.headers.map(header => {
-                    return (
-                      <th
-                        key={header.id}
-                        aria-sort={
-                          header.column.getIsSorted() === 'asc'
-                            ? 'ascending'
-                            : header.column.getIsSorted() === 'desc'
-                              ? 'descending'
-                              : 'none'
-                        }
-                        className={cn('flex px-2 py-2 font-semibold justify-start text-left', {
-                          'justify-center text-center': header.column.columnDef.meta?.align === 'center'
-                        })}
-                        style={{
-                          width: header.getSize()
-                        }}
-                      >
-                        {header.column.getCanSort() ? (
-                          <button
-                            type="button"
-                            onClick={header.column.getToggleSortingHandler()}
-                            className="cursor-pointer select-none flex items-center gap-2 hover:bg-muted/50 rounded px-1 -ml-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          >
-                            {flexRender(header.column.columnDef.header, header.getContext())}
-                            {{
-                              asc: <CircleArrowUp className="h-4 w-4" />,
-                              desc: <CircleArrowDown className="h-4 w-4" />
-                            }[header.column.getIsSorted() as string] ?? null}
-                          </button>
-                        ) : (
-                          <div className="flex items-center">
-                            {flexRender(header.column.columnDef.header, header.getContext())}
-                          </div>
-                        )}
-                      </th>
-                    );
-                  })}
+                  {/* O(c) where c = number of columns */}
+                  {headerGroup.headers.map(header => (
+                    <TableHeaderCell header={header} key={header.id} />
+                  ))}
                 </tr>
               ))}
             </thead>
@@ -608,6 +671,42 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
         </div>
       )}
     </>
+  );
+}
+
+function TableHeaderCell({ header }: { header: Header<CategorizedTransactionType, unknown> }) {
+  return (
+    <th
+      aria-sort={
+        header.column.getIsSorted() === 'asc'
+          ? 'ascending'
+          : header.column.getIsSorted() === 'desc'
+            ? 'descending'
+            : 'none'
+      }
+      className={cn('flex px-2 py-2 font-semibold justify-start text-left', {
+        'justify-center text-center': header.column.columnDef.meta?.align === 'center'
+      })}
+      style={{
+        width: header.getSize()
+      }}
+    >
+      {header.column.getCanSort() ? (
+        <button
+          type="button"
+          onClick={header.column.getToggleSortingHandler()}
+          className="cursor-pointer select-none flex items-center gap-2 hover:bg-muted/50 rounded px-1 -ml-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {flexRender(header.column.columnDef.header, header.getContext())}
+          {{
+            asc: <CircleArrowUp className="h-4 w-4" />,
+            desc: <CircleArrowDown className="h-4 w-4" />
+          }[header.column.getIsSorted() as string] ?? null}
+        </button>
+      ) : (
+        <div className="flex items-center">{flexRender(header.column.columnDef.header, header.getContext())}</div>
+      )}
+    </th>
   );
 }
 
