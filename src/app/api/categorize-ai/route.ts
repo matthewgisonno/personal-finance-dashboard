@@ -1,12 +1,12 @@
-import { sql, eq } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { z } from 'zod';
 
 import { DEFAULT_CATEGORIES } from '@/lib/constants';
-import { db, transactions, categories } from '@/lib/db';
+import { db, transactions } from '@/lib/db';
 import { categorizeAiInputSchema, categorizeAiResponseSchema } from '@/lib/schemas';
-import { getCategoryId } from '@/lib/services';
+import { getCategoryId, getCategoryMap } from '@/lib/services';
 
 import type { CategorizeAiInputType } from '@/lib/schemas/types';
 
@@ -180,17 +180,20 @@ OUTPUT FORMAT:
     try {
       // MOCK: Get the user
       const user = await db.query.users.findFirst();
-      if (user && rawTransactions.length > 0) {
-        const uncategorized = await db.query.categories.findFirst({
-          where: eq(categories.name, 'Uncategorized')
-        });
+      if (!user) {
+        return NextResponse.json({ error: 'No user found' }, { status: 401 });
+      }
 
-        if (uncategorized) {
+      if (rawTransactions.length > 0) {
+        const categoryMap = await getCategoryMap();
+        const uncategorizedId = categoryMap['uncategorized'];
+
+        if (uncategorizedId) {
           const now = new Date();
           await db
             .update(transactions)
             .set({
-              categoryId: uncategorized.id,
+              categoryId: uncategorizedId,
               categoryStatus: 'completed',
               categorySource: 'error',
               categoryConfidence: '0',
