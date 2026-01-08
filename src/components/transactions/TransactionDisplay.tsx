@@ -623,7 +623,7 @@ function TableBodyRow({ row, virtualRow, rowVirtualizer }: TableBodyRowProps) {
       data-index={virtualRow.index}
       ref={node => rowVirtualizer.measureElement(node)}
       key={row.id}
-      className="border-b border-border bg-white hover:bg-muted/50 flex w-full absolute"
+      className="border-b border-border bg-card hover:bg-muted/50 flex w-full absolute"
       style={{ transform: `translateY(${virtualRow.start}px)` }}
     >
       {row.getVisibleCells().map(cell => {

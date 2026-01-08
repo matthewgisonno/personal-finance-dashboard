@@ -32,7 +32,7 @@ export function Sidebar({ onNavigate, user }: AppSidebarProps) {
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex items-center px-4 py-6">
-        <Link href="/" onClick={onNavigate} className="flex items-center gap-2 px-2">
+        <Link href="/" onClick={onNavigate} className="flex items-center gap-2 px-2" title="Navigate to Dashboard">
           <div className="relative h-8 w-32">
             <Image src="/finance-flow-logo-sm.png" alt="FinanceFlow" fill className="object-contain" loading="eager" />
           </div>

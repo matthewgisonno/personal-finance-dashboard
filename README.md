@@ -1,14 +1,14 @@
 # Personal Finance Dashboard
 
-A modern, AI-powered personal finance tracker built with Next.js 15, Drizzle ORM, and the Vercel AI SDK. This application allows users to upload transaction history, automatically categorizes expenses using a hybrid local/AI approach, and provides actionable financial insights.
+A modern, AI-powered personal finance tracker built with Next.js (App Router), Drizzle ORM, and the official OpenAI SDK. This application allows users to upload transaction history, automatically categorizes expenses using a hybrid local/AI approach, and provides actionable financial insights.
 
 ## Tech Stack
 
-- **Framework:** [Next.js 15](https://nextjs.org/) (App Router)
+- **Framework:** [Next.js](https://nextjs.org/) (App Router)
 - **Language:** TypeScript
 - **Database:** PostgreSQL (via [Neon](https://neon.tech/))
 - **ORM:** [Drizzle ORM](https://orm.drizzle.team/)
-- **AI:** [Vercel AI SDK](https://sdk.vercel.ai/docs) (OpenAI GPT-4o)
+- **AI:** OpenAI SDK (`openai`) (GPT-4o-mini)
 - **Styling:** Tailwind CSS + Radix UI (shadcn/ui patterns)
 - **Charts:** Recharts
 
@@ -23,7 +23,7 @@ A modern, AI-powered personal finance tracker built with Next.js 15, Drizzle ORM
 
 ### 2. AI Financial Insights
 
-- **Monthly Analysis:** Generates a "CLEAR" framework report on your spending habits.
+- **Monthly Analysis:** Generates a report on your spending habits.
 - **Actionable Tips:** Provides specific recommendations to save money based on your highest spending categories.
 - **Budget Alerts:** Automatically flags categories that are consuming a disproportionate share of your budget.
 
@@ -54,7 +54,7 @@ A modern, AI-powered personal finance tracker built with Next.js 15, Drizzle ORM
    - If not, status is `pending`.
 4. **Client triggers AI** (`/api/categorize-ai`) for `pending` items.
 5. **AI API:**
-   - Sends minimized transaction data (ID + Description) to OpenAI.
+   - Sends minimized transaction data (index + description) to OpenAI.
    - Updates the database with predicted categories and confidence scores.
 
 #### Insight Generation

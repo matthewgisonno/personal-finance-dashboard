@@ -1,10 +1,10 @@
-import { sql } from 'drizzle-orm';
+import { sql, eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { z } from 'zod';
 
 import { DEFAULT_CATEGORIES } from '@/lib/constants';
-import { db, transactions } from '@/lib/db';
+import { db, transactions, categories } from '@/lib/db';
 import { categorizeAiInputSchema, categorizeAiResponseSchema } from '@/lib/schemas';
 import { getCategoryId } from '@/lib/services';
 
@@ -57,6 +57,7 @@ export async function POST(req: NextRequest) {
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       temperature: 0,
+      response_format: { type: 'json_object' },
       messages: [
         {
           role: 'system',
@@ -174,14 +175,40 @@ OUTPUT FORMAT:
   } catch (error) {
     console.error('AI Processing Error:', error);
 
-    // Fallback
+    // Fallback: persist "error" completion so pending items don't loop on refresh.
     // O(n) where n = number of transactions
-    const fallback = rawTransactions.map(t => ({
-      i: t.id,
-      t: 'Uncategorized',
-      n: 0
-    }));
+    try {
+      // MOCK: Get the user
+      const user = await db.query.users.findFirst();
+      if (user && rawTransactions.length > 0) {
+        const uncategorized = await db.query.categories.findFirst({
+          where: eq(categories.name, 'Uncategorized')
+        });
 
-    return NextResponse.json({ categorizations: fallback });
+        if (uncategorized) {
+          const now = new Date();
+          await db
+            .update(transactions)
+            .set({
+              categoryId: uncategorized.id,
+              categoryStatus: 'completed',
+              categorySource: 'error',
+              categoryConfidence: '0',
+              updatedAt: now
+            })
+            .where(
+              sql`${transactions.userId} = ${user.id} AND ${transactions.id} IN (${sql.join(
+                rawTransactions.map(t => sql`${t.id}`),
+                sql`,`
+              )})`
+            );
+        }
+      }
+    } catch (persistErr) {
+      console.error('AI Fallback Persist Error:', persistErr);
+    }
+
+    const fallback = rawTransactions.map(t => ({ i: t.id, t: 'Uncategorized', n: 0 }));
+    return NextResponse.json({ categorizations: fallback }, { status: 200 });
   }
 }

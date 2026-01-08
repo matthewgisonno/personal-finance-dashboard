@@ -83,7 +83,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
           {history.length > 0 && (
             <Select onValueChange={handleHistorySelect} value={insights?.id}>
-              <SelectTrigger className="w-full md:w-57 bg-white" aria-label="Select Insight History">
+              <SelectTrigger className="w-full md:w-57 bg-card" aria-label="Select Insight History">
                 <History className="mr-2 h-4 w-4" />
 
                 <SelectValue placeholder="History" />
@@ -174,7 +174,7 @@ export function AIInsightsClient({ initialInsight, initialHistory }: AIInsightsC
                 {/* O(r) where r = recommendations count */}
                 {insights.recommendations &&
                   insights.recommendations.map((rec: InsightDataType['recommendations'][number], i: number) => (
-                    <div key={i} className="flex flex-col space-y-1 p-3 rounded-lg border bg-white shadow-sm">
+                    <div key={i} className="flex flex-col space-y-1 p-3 rounded-lg border bg-card shadow-sm">
                       <div className="flex justify-between items-center">
                         <span className="font-semibold text-sm bg-gray-100 px-2 py-0.5 rounded-md text-gray-800">
                           {rec.category}

@@ -50,8 +50,8 @@ export function CategorizationTray() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50 w-80 md:w-96 shadow-xl transition-all duration-300">
-      <Card className="border-t-4 border-t-sidebar-primary overflow-hidden bg-white border-x border-b border-gray-200">
-        <div className="p-4">
+      <Card className="border-t-4 border-t-sidebar-primary overflow-hidden bg-card border-x border-b border-gray-200">
+        <div className="px-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               {isProcessing ? (

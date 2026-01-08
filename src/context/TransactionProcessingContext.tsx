@@ -44,53 +44,68 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
     try {
       const res = await fetch('/api/categorize-ai', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ transactions: batch })
       });
 
-      if (!res.ok) throw new Error('Failed to fetch AI batch');
+      if (!res.ok) {
+        const status = res.status;
+        // Retry 429/5xx with backoff
+        if ((status === 429 || status >= 500) && retryCount < 5) {
+          const delay = 750 * Math.pow(2, retryCount);
+          await new Promise(r => setTimeout(r, delay));
+          return runBatch(batch, retryCount + 1);
+        }
+        throw new Error(`Failed to fetch AI batch (status ${status})`);
+      }
 
       const { categorizations } = await res.json();
 
       setTransactions(prev => {
         const next = [...prev];
-        // O(b * n) where b = batch size (10) and n = total transactions
-        // (Iterating batch, then linear search for each item)
+        // O(n + b): build index once, then apply updates
+        const indexById = new Map<string, number>();
+        for (let i = 0; i < next.length; i++) {
+          indexById.set(next[i].id, i);
+        }
+
         categorizations.forEach((cat: { i: string; t: string; n: number }) => {
-          const index = next.findIndex(t => t.id === cat.i);
-          if (index !== -1) {
-            next[index] = {
-              ...next[index],
-              category: cat.t,
-              categoryConfidence: cat.n.toString(),
-              categorySource: 'ai',
-              categoryStatus: 'completed'
-            } as CategorizedTransactionType;
+          const index = indexById.get(cat.i);
+          if (index === undefined) {
+            return;
           }
+          next[index] = {
+            ...next[index],
+            category: cat.t,
+            categoryConfidence: cat.n.toString(),
+            categorySource: 'ai',
+            categoryStatus: 'completed'
+          } as CategorizedTransactionType;
         });
         return next;
       });
     } catch (error) {
       console.error('Batch failed', error);
-      if (retryCount < 3) {
-        const delay = 1000 * (retryCount + 1);
-        await new Promise(r => setTimeout(r, delay));
-        return runBatch(batch, retryCount + 1);
-      }
-
       // Mark as failed
       setTransactions(prev => {
         const next = [...prev];
+        const indexById = new Map<string, number>();
+        for (let i = 0; i < next.length; i++) {
+          indexById.set(next[i].id, i);
+        }
+
         batch.forEach(t => {
-          const index = next.findIndex(nt => nt.id === t.id);
-          if (index !== -1) {
-            next[index] = {
-              ...next[index],
-              category: 'Uncategorized',
-              categoryConfidence: '0',
-              categorySource: 'error',
-              categoryStatus: 'completed'
-            } as CategorizedTransactionType;
+          const index = indexById.get(t.id);
+          if (index === undefined) {
+            return;
           }
+          next[index] = {
+            ...next[index],
+            category: 'Uncategorized',
+            categoryConfidence: '0',
+            categorySource: 'error',
+            categoryStatus: 'completed'
+          } as CategorizedTransactionType;
         });
         return next;
       });

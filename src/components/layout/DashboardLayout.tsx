@@ -32,9 +32,9 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
   return (
     <div className="flex h-screen overflow-hidden bg-background text-foreground">
       {/* Sidebar - Desktop */}
-      <aside className="hidden w-72 shrink-0 bg-sidebar border-r border-sidebar-border md:block z-30">
+      <nav role="navigation" className="hidden w-72 shrink-0 bg-sidebar border-r border-sidebar-border md:block z-30">
         <Sidebar user={user} />
-      </aside>
+      </nav>
 
       {/* Sidebar - Mobile Overlay */}
       <div className={cn('md:hidden', !sidebarOpen && 'pointer-events-none')} aria-hidden={!sidebarOpen}>
@@ -60,7 +60,7 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
           )}
           inert={!sidebarOpen ? true : false}
         >
-          <aside className="h-full">
+          <nav role="navigation" className="h-full">
             <div className="absolute right-4 top-4 z-50">
               <Button
                 variant="ghost"
@@ -73,14 +73,14 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
               </Button>
             </div>
             <Sidebar user={user} onNavigate={() => setSidebarOpen(false)} />
-          </aside>
+          </nav>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="flex flex-1 flex-col overflow-hidden relative">
         {/* Mobile Header Toggle */}
-        <div className="flex h-14 items-center gap-3 border-b border-border bg-white px-4 md:hidden z-20 sticky top-0 shadow-sm">
+        <div className="flex h-14 items-center gap-3 border-b border-border bg-card px-4 md:hidden z-20 sticky top-0 shadow-sm">
           <Button
             variant="ghost"
             size="icon"
@@ -91,7 +91,7 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
             <span className="sr-only">Open sidebar</span>
           </Button>
 
-          <Link href="/">
+          <Link href="/" title="Navigate to Dashboard">
             <Image src="/finance-flow-logo-sm.png" alt="FinanceFlow" width={159} height={41} loading="eager" />
           </Link>
         </div>
