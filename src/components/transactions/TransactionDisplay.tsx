@@ -296,7 +296,11 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
             );
           }
 
-          return <span className="text-xs text-muted-foreground px-2">{source?.toUpperCase()}</span>;
+          return (
+            <div className="flex items-center">
+              <span className="text-xs text-muted-foreground px-2 animate-pulse">{source?.toUpperCase()}</span>
+            </div>
+          );
         },
         size: 100,
         meta: {
