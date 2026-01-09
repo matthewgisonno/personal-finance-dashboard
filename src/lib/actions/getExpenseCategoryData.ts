@@ -44,7 +44,6 @@ export async function getExpenseCategoryData(
     query.innerJoin(accounts, eq(transactions.accountId, accounts.id));
   }
 
-  // O(n) scan, O(c) grouping (DB side)
   const result = await query.where(and(...conditions)).groupBy(categories.name, categories.color, categories.icon);
 
   // O(c log c) where c = categories found

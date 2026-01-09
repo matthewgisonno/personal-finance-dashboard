@@ -30,14 +30,12 @@ interface TransactionImporterProps {
 }
 
 export function TransactionImporter({ accounts }: TransactionImporterProps) {
-  const { transactions, checkPending, startUploadSession } = useTransactionProcessing();
+  const { transactions, checkPending, startUploadSession, pendingCount } = useTransactionProcessing();
   const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(accounts[0]?.id || undefined);
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadStatus, setUploadStatus] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
-
-  const pendingTransactions = transactions.filter(t => t.categoryStatus === 'pending');
 
   const processFile = (file: File) => {
     setUploading(true);
@@ -260,10 +258,10 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
       </div>
 
       {/* Processing Stats */}
-      {pendingTransactions.length > 0 && <TransactionProcessingStats />}
+      {pendingCount > 0 && <TransactionProcessingStats />}
 
       {/* Success Message */}
-      {!uploading && transactions.length > 0 && pendingTransactions.length === 0 && (
+      {!uploading && transactions.length > 0 && pendingCount === 0 && (
         <div className="bg-card shadow rounded-lg p-10 text-center border border-border">
           <div className="flex flex-col items-center justify-center space-y-4">
             <div className="rounded-full bg-green-100 p-3">
