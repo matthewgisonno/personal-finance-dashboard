@@ -49,14 +49,12 @@ Returns the categorization results for the processed transactions.
 
 ### Errors
 
-| Status Code                 | Description                  | Body                                                          |
-| :-------------------------- | :--------------------------- | :------------------------------------------------------------ |
-| `400 Bad Request`           | Invalid request body format. | `{ "error": "Invalid request body", "details": ... }`         |
-| `401 Unauthorized`          | User not found (Mock auth).  | `{ "error": "No user found" }`                                |
-| `500 Internal Server Error` | Processing failed.           | (Falls back to 200 with "Uncategorized" if persistence fails) |
+| Status Code        | Description                  | Body                                                  |
+| :----------------- | :--------------------------- | :---------------------------------------------------- |
+| `400 Bad Request`  | Invalid request body format. | `{ "error": "Invalid request body", "details": ... }` |
+| `401 Unauthorized` | User not found (Mock auth).  | `{ "error": "No user found" }`                        |
 
 ## Notes
 
 - If the AI processing fails, the endpoint attempts to mark transactions as "Uncategorized" with status "completed" and source "error".
 - It returns a fallback response (Uncategorized, 0 confidence) in case of processing errors to prevent client loops.
-
