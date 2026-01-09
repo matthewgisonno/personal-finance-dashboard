@@ -10,11 +10,23 @@ import {
   ColumnFiltersState,
   getFilteredRowModel,
   RowSelectionState,
-  Header
+  Header,
+  FilterFn
 } from '@tanstack/react-table';
 import { useVirtualizer, VirtualItem, Virtualizer } from '@tanstack/react-virtual';
-import { CircleArrowDown, CircleArrowUp, Database, MoreHorizontal, Sparkles, User, X } from 'lucide-react';
+import { endOfDay, isWithinInterval, startOfDay } from 'date-fns';
+import {
+  CalendarIcon,
+  CircleArrowDown,
+  CircleArrowUp,
+  Database,
+  MoreHorizontal,
+  Sparkles,
+  User,
+  X
+} from 'lucide-react';
 import { useMemo, useRef, useState, useEffect } from 'react';
+import { DateRange } from 'react-day-picker';
 
 import { DebouncedInput, EmptyState, MobileCollapsibleCard } from '@/components/common';
 import { Badge } from '@/components/ui/Badge';
@@ -34,7 +46,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useTransactionProcessing } from '@/context/TransactionProcessingContext';
 import { bulkUpdateTransactionCategory } from '@/lib/actions/bulkUpdateTransactionCategory';
 import { updateTransactionCategory } from '@/lib/actions/updateTransactionCategory';
-import { cn, categoryIconMap, formatCurrency, formatDate, formatNumber } from '@/lib/utils';
+import { cn, categoryIconMap, formatCurrency, formatDate, formatNumber, formatLongDate } from '@/lib/utils';
+
+import { Calendar } from '../ui/Calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/Popover';
 
 import type { CategoryOptionType, AccountOptionType } from '@/lib/actions/types';
 import type { CategorizedTransactionType } from '@/lib/services/types';
@@ -48,6 +63,7 @@ interface TransactionDisplayProps {
 export function TransactionDisplay({ inputData, categories = [], accounts = [] }: TransactionDisplayProps) {
   const [data, setData] = useState<CategorizedTransactionType[]>(inputData || []);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [bulkCategory, setBulkCategory] = useState<string>('');
   const [isBulkUpdating, setIsBulkUpdating] = useState<boolean>(false);
@@ -150,6 +166,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
       {
         accessorKey: 'date',
         header: 'Date',
+        filterFn: dateRangeFilter, // O(1) where n = number of transactions
         cell: info => {
           const val = info.getValue<string | Date>();
           const date = val instanceof Date ? val : new Date(val);
@@ -443,6 +460,10 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
     }
   };
 
+  useEffect(() => {
+    table.getColumn('date')?.setFilterValue(dateRange);
+  }, [dateRange, table]);
+
   if (!data || data.length === 0) {
     return <EmptyState />;
   }
@@ -546,12 +567,61 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
               </FieldGroup>
             </FieldSet>
           </div>
+
+          <div className="w-full md:max-w-md">
+            <FieldSet>
+              <FieldGroup>
+                <Field>
+                  <FieldLabel>Date Range:</FieldLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        id="date"
+                        variant={'outline'}
+                        className={cn(
+                          'w-full justify-start text-left font-normal h-8 bg-card',
+                          !dateRange && 'text-muted-foreground'
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dateRange?.from ? (
+                          dateRange.to ? (
+                            <>
+                              {formatLongDate(dateRange.from)} - {formatLongDate(dateRange.to)}
+                            </>
+                          ) : (
+                            formatLongDate(dateRange.from)
+                          )
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="range"
+                        defaultMonth={dateRange?.from}
+                        selected={dateRange}
+                        onSelect={setDateRange}
+                        numberOfMonths={2}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </Field>
+              </FieldGroup>
+            </FieldSet>
+          </div>
         </div>
 
         {columnFilters.length > 0 && (
           <Button
             variant="outline"
-            onClick={() => setColumnFilters([])}
+            onClick={() => {
+              setColumnFilters([]);
+              setRowSelection({});
+              setBulkCategory('');
+              setDateRange(undefined);
+            }}
             className="h-8 cursor-pointer w-full md:w-auto"
           >
             Clear Filters
@@ -745,3 +815,16 @@ function TableBodyRow({ row, virtualRow, rowVirtualizer }: TableBodyRowProps) {
     </tr>
   );
 }
+
+const dateRangeFilter: FilterFn<CategorizedTransactionType> = (row, columnId, value: DateRange | undefined) => {
+  if (!value?.from) return true;
+
+  const rowValue = row.getValue(columnId);
+  const rowDate = rowValue instanceof Date ? rowValue : new Date(rowValue as string);
+
+  const from = startOfDay(value.from);
+  const to = value.to ? endOfDay(value.to) : endOfDay(value.from);
+
+  // Check if row date is within the selected range
+  return isWithinInterval(rowDate, { start: from, end: to });
+};
