@@ -1,6 +1,6 @@
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
-import { CategorizationTray } from '@/components/dashboard';
+import { CategorizationTray } from '@/components/common';
 import { DashboardLayout } from '@/components/layout';
 import { TransactionProcessingProvider } from '@/context/TransactionProcessingContext';
 import { getUser } from '@/lib/actions';

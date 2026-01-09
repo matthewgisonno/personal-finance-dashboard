@@ -1,8 +1,9 @@
 import { Upload } from 'lucide-react';
 
-import { TransactionImporter } from '@/components/dashboard';
 import { Header, PageContainer } from '@/components/layout';
 import { db, accounts } from '@/lib/db';
+
+import { TransactionImporter } from '@/components/upload';
 
 export const dynamic = 'force-dynamic';
 
