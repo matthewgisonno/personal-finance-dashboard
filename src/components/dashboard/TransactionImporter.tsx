@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { TransactionProcessingStats } from './TransactionProcessingStats';
 
 import type { IngestInputType } from '@/lib/schemas/types';
+import type { CategorizedTransactionType } from '@/lib/services/types';
 
 const REQUIRED_COLUMNS = {
   date: ['date', 'posted date', 'time'],
@@ -29,7 +30,7 @@ interface TransactionImporterProps {
 }
 
 export function TransactionImporter({ accounts }: TransactionImporterProps) {
-  const { transactions, checkPending } = useTransactionProcessing();
+  const { transactions, checkPending, startUploadSession } = useTransactionProcessing();
   const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>(accounts[0]?.id || undefined);
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadStatus, setUploadStatus] = useState<string>('');
@@ -135,6 +136,7 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
 
     const BATCH_SIZE = 2500;
     const total = rawData.length;
+    let localRulesMatchCount = 0;
 
     try {
       // O(n) where n = number of transactions
@@ -154,7 +156,15 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
         });
 
         if (!res.ok) throw new Error(`Batch ${currentBatchNum} failed`);
+
+        const json = await res.json();
+        const batchData = json.data as CategorizedTransactionType[];
+        const batchLocalMatches = batchData.filter(t => t.categoryStatus === 'completed').length;
+        localRulesMatchCount += batchLocalMatches;
       }
+
+      // Update context with session stats
+      startUploadSession(total, localRulesMatchCount);
 
       // Trigger global processing to pick up the new pending items
       await checkPending();
@@ -250,7 +260,7 @@ export function TransactionImporter({ accounts }: TransactionImporterProps) {
       </div>
 
       {/* Processing Stats */}
-      {pendingTransactions.length > 0 && <TransactionProcessingStats transactions={transactions} />}
+      {pendingTransactions.length > 0 && <TransactionProcessingStats />}
 
       {/* Success Message */}
       {!uploading && transactions.length > 0 && pendingTransactions.length === 0 && (

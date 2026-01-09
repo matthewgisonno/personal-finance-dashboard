@@ -14,7 +14,9 @@ interface TransactionProcessingContextType {
   pendingCount: number;
   completedCount: number;
   totalCount: number;
+  localCompletedCount: number;
   checkPending: () => Promise<void>;
+  startUploadSession: (total: number, localCompleted: number) => void;
 }
 
 const TransactionProcessingContext = createContext<TransactionProcessingContextType | undefined>(undefined);
@@ -23,6 +25,7 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
   const [transactions, setTransactions] = useState<CategorizedTransactionType[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState('');
+  const [sessionStats, setSessionStats] = useState({ localCompleted: 0 });
 
   const processingRef = useRef(false);
   const transactionsRef = useRef(transactions);
@@ -33,12 +36,22 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
   }, [transactions]);
 
   // Derived state
-  const totalCount = transactions.length;
-  // O(n) where n = total transactions
-  const completedCount = transactions.filter(t => t.categoryStatus === 'completed').length;
-  const progressValue = totalCount === 0 ? 0 : (completedCount / totalCount) * 100;
   // O(n)
   const pendingCount = transactions.filter(t => t.categoryStatus === 'pending').length;
+  // Transactions that are completed in the current processing queue (AI)
+  const aiCompletedCount = transactions.filter(t => t.categoryStatus === 'completed').length;
+
+  // Total completed = Local (from upload) + AI (from current queue)
+  const completedCount = sessionStats.localCompleted + aiCompletedCount;
+
+  // Total count = All completed + All pending
+  const totalCount = completedCount + pendingCount;
+
+  const progressValue = totalCount === 0 ? 0 : (completedCount / totalCount) * 100;
+
+  const startUploadSession = useCallback((total: number, localCompleted: number) => {
+    setSessionStats({ localCompleted });
+  }, []);
 
   const runBatch = async (batch: CategorizedTransactionType[], retryCount = 0) => {
     try {
@@ -194,7 +207,9 @@ export function TransactionProcessingProvider({ children }: { children: React.Re
         pendingCount,
         completedCount,
         totalCount,
-        checkPending
+        localCompletedCount: sessionStats.localCompleted,
+        checkPending,
+        startUploadSession
       }}
     >
       {children}
