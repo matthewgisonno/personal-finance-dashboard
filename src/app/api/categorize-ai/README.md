@@ -59,3 +59,4 @@ Returns the categorization results for the processed transactions.
 
 - If the AI processing fails, the endpoint attempts to mark transactions as "Uncategorized" with status "completed" and source "error".
 - It returns a fallback response (Uncategorized, 0 confidence) in case of processing errors to prevent client loops.
+

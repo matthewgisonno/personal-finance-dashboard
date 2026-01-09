@@ -71,3 +71,4 @@ Returns the newly created transaction records, including their assigned categori
 - Transactions matching a known keyword locally are marked as `completed` with source `local` and confidence `1.0`.
 - Transactions with no local match are marked as `pending` with source `pending` and confidence `0` (Uncategorized).
 - The account balance is automatically updated by summing the transaction amounts.
+
