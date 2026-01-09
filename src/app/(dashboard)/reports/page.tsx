@@ -15,7 +15,8 @@ import {
   getMonthlyExpenseData,
   getCategories,
   CategoryType,
-  hasTransactions
+  hasTransactions,
+  getMostRecentTransactionDate
 } from '@/lib/actions';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
@@ -27,7 +28,11 @@ export default async function ReportsPage(props: { searchParams: SearchParams })
   const from = typeof searchParams.from === 'string' ? searchParams.from : undefined;
   const to = typeof searchParams.to === 'string' ? searchParams.to : undefined;
 
-  const endDate = to ? new Date(to) : new Date();
+  let endDate = to ? new Date(to) : undefined;
+  if (!endDate) {
+    const latestDate = await getMostRecentTransactionDate();
+    endDate = latestDate ?? new Date();
+  }
   const startDate = from ? new Date(from) : subYears(endDate, 1);
 
   const [hasAnyTransactions, expenseData, accounts, monthlyData, categories] = await Promise.all([
@@ -49,7 +54,11 @@ export default async function ReportsPage(props: { searchParams: SearchParams })
           <EmptyState />
         ) : (
           <>
-            <ReportFilters key={`${account ?? 'all'}|${from ?? ''}|${to ?? ''}`} accounts={accounts} />
+            <ReportFilters
+              key={`${account ?? 'all'}|${from ?? ''}|${to ?? ''}`}
+              accounts={accounts}
+              defaultDateRange={{ from: startDate, to: endDate }}
+            />
 
             {!hasFilteredData && <FilteredReportsEmptyState />}
 

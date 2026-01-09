@@ -18,9 +18,10 @@ import type { AccountOptionType } from '@/lib/actions/types';
 
 interface ReportFiltersProps {
   accounts: AccountOptionType[];
+  defaultDateRange?: { from: Date; to: Date };
 }
 
-export function ReportFilters({ accounts }: ReportFiltersProps) {
+export function ReportFilters({ accounts, defaultDateRange }: ReportFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -34,6 +35,11 @@ export function ReportFilters({ accounts }: ReportFiltersProps) {
         to: new Date(toParam)
       };
     }
+
+    if (defaultDateRange) {
+      return defaultDateRange;
+    }
+
     const end = new Date();
     const start = subYears(end, 1);
     return {
@@ -85,13 +91,16 @@ export function ReportFilters({ accounts }: ReportFiltersProps) {
   const isFiltered = currentAccount !== 'all' || searchParams.has('from') || searchParams.has('to');
 
   const handleClearFilters = () => {
-    const end = new Date();
-    const start = subYears(end, 1);
-    const defaultDate = {
-      from: start,
-      to: end
-    };
-    setDate(defaultDate);
+    if (defaultDateRange) {
+      setDate(defaultDateRange);
+    } else {
+      const end = new Date();
+      const start = subYears(end, 1);
+      setDate({
+        from: start,
+        to: end
+      });
+    }
     router.push(pathname);
   };
 

@@ -31,6 +31,7 @@ import { DateRange } from 'react-day-picker';
 import { DebouncedInput, EmptyState, MobileCollapsibleCard } from '@/components/common';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { Calendar } from '@/components/ui/Calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Checkbox } from '@/components/ui/Checkbox';
 import {
@@ -42,14 +43,12 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/DropdownMenu';
 import { Field, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/Field';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/Popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { useTransactionProcessing } from '@/context/TransactionProcessingContext';
 import { bulkUpdateTransactionCategory } from '@/lib/actions/bulkUpdateTransactionCategory';
 import { updateTransactionCategory } from '@/lib/actions/updateTransactionCategory';
 import { cn, categoryIconMap, formatCurrency, formatDate, formatNumber, formatLongDate } from '@/lib/utils';
-
-import { Calendar } from '../ui/Calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/Popover';
 
 import type { CategoryOptionType, AccountOptionType } from '@/lib/actions/types';
 import type { CategorizedTransactionType } from '@/lib/services/types';

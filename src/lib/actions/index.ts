@@ -4,6 +4,7 @@ export * from './getCategories';
 export * from './getExpenseCategoryData';
 export * from './getInsights';
 export * from './getMonthlyExpenseData';
+export * from './getMostRecentTransactionDate';
 export * from './getTransactions';
 export * from './getUser';
 export * from './hasTransactions';
