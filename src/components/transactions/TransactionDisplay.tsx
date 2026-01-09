@@ -474,8 +474,8 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
   return (
     <>
       <MobileCollapsibleCard title="Filter Transactions">
-        <div className="flex items-center py-4 gap-4 flex-wrap md:flex-nowrap">
-          <div className="w-full md:max-w-md">
+        <div className="flex items-center py-4 gap-4 flex-wrap lg:flex-nowrap">
+          <div className="w-full lg:max-w-md">
             <FieldSet>
               <FieldGroup>
                 <Field>
@@ -537,7 +537,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
             </FieldSet>
           </div>
 
-          <div className="w-full md:max-w-md">
+          <div className="w-full lg:max-w-md">
             <FieldSet>
               <FieldGroup>
                 <Field>
@@ -568,7 +568,7 @@ export function TransactionDisplay({ inputData, categories = [], accounts = [] }
             </FieldSet>
           </div>
 
-          <div className="w-full md:max-w-md">
+          <div className="w-full lg:max-w-md">
             <FieldSet>
               <FieldGroup>
                 <Field>
