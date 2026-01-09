@@ -1,11 +1,12 @@
 'use server';
 
+import { subDays } from 'date-fns';
 import { desc, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import OpenAI from 'openai';
 
 import { getExpenseCategoryData } from '@/lib/actions/getExpenseCategoryData';
-import { db, aiInsights } from '@/lib/db';
+import { db, aiInsights, transactions } from '@/lib/db';
 import { formatCurrency } from '@/lib/utils';
 
 import { aiInsightsSchema } from '../schemas';
@@ -89,9 +90,19 @@ export async function generateInsightsAction(force: boolean = false): Promise<In
   }
 
   // 2. Fetch Aggregated Data (Last 30 Days)
-  const endDate = new Date();
-  const startDate = new Date();
-  startDate.setDate(endDate.getDate() - 30);
+  // Get the latest transaction
+  const latestTransaction = await db.query.transactions.findFirst({
+    where: eq(transactions.userId, user.id),
+    orderBy: [desc(transactions.date)]
+  });
+
+  // If no transactions, return null
+  if (!latestTransaction) {
+    return null;
+  }
+
+  const endDate = new Date(latestTransaction.date);
+  const startDate = subDays(endDate, 30);
 
   // O(n) (calls getExpenseCategoryData)
   const categoryData = await getExpenseCategoryData({
